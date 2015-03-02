@@ -1,0 +1,22 @@
+#container{
+	width:90%;
+	margin:auto;
+	background-color:#F2F2F2;
+}
+#resultContainer{
+	margin-top:15px;
+	width:100%;
+	border:1px solid #E3F6CE;
+}
+#container button{
+	width:100px;
+	height:40px;
+	cursor:pointer;
+	margin-top: 5px;
+}
+
+#callMsgBoard{
+	margin-top:15px;
+	border:1px solid #E3F6CE;
+	padding:5px 5px 5px 5px;
+}
