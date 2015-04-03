@@ -15,8 +15,6 @@ var Smartjax = function() {
 
 		//ajax to handle all request
 		ajax: function (requestObj) {
-			if(!requestObj.type)
-				return helper.fireWithDefaultMethod(requestObj);
 			//generating unique requestStoreId
 			var requestStoreId = helper.buildRequestStoreId(requestObj);
 			//make calls accordingly
