@@ -42,10 +42,32 @@ var Smartjax = function() {
 				return true;
 			}
 			groupService.clearGroups(groups);
+		},
+		/*
+			if you pass a string, it will completely replace the browser url
+			if a JSON object is sent as a param with two properties it will work accordingly
+			Eg:
+			{
+				url:'a url',
+				params:{
+					query1:'a query',
+					myQuery:'another query'
+				}
+			}
+			if you want to append the query params to the current url then send the url property as null
+		*/
+		changeUrl:function (reqModel) {
+			var url = reqModel.url || window.location.href;
+			var params = reqModel.params;
+			if(params)
+				url = historyService.addQueryString(url,params);
+			historyService.replaceURL(url);
 		}
 	}
 
+	//multiple helper function to use services
 	var helper={
+		//following function creates a store id
 		buildRequestStoreId:function (requestObj) {
 			var storeId="";
 			var url=requestObj.url;
@@ -75,6 +97,7 @@ var Smartjax = function() {
 				return smartjax.defaults.alwaysStore;
 			}
 		},
+
 		returnWithAddedStore:function(params) {
 			var newDeferred= new $.Deferred();
 			var requiredRequestObj = this.getOriginalRequestObject(params.requestObj);
@@ -133,6 +156,7 @@ var Smartjax = function() {
 		}
 	}
 
+	//service related to storage
 	var	storeService={
 		getFullStore:function (storeName) {
 			if(!storeName)
@@ -178,6 +202,7 @@ var Smartjax = function() {
 		}
 	}
 
+	//group service to handle grouping
 	var groupService={		
 		registerGroup:function (requestObj,storeId) {
 			var group = requestObj.group;
@@ -231,5 +256,73 @@ var Smartjax = function() {
 			}
 		}
 	}
+
+	var historyService={
+		//it will directly replace the url without loading the page
+		//takes string as param
+		replaceURL:function (url) {
+			if(window.history && window.history.pushState){
+				var stateObj = { title:'Smartjax Url' };
+				history.pushState(stateObj, "Smartjax Url", url);
+			}
+		},
+
+		//append querystring
+		//takes array as param
+		/* Example:
+			{
+				query1:'a query',
+				myQuery:'another query'
+			}
+
+			output: //currenturl.com?query1=a query&myQuery=another query
+		*/
+		addQueryString:function (url,queryParams) {
+			var currentUrl = url || " ";
+			var splittedByHash = currentUrl.split('#');
+			var preHashUrl = {
+				url:splittedByHash[0]
+			}
+			var postHashUrl = {
+				url:splittedByHash[1]
+			}
+			
+			//if the query params is to be added before hash or after
+			var queryParamUrl = (postHashUrl.url && postHashUrl.url.indexOf('?')!=-1)?postHashUrl:preHashUrl;
+			if(queryParamUrl.url[queryParamUrl.url.length-1]==='/')
+				queryParamUrl.url=queryParamUrl.url.slice(queryParamUrl.url.length-1,queryParamUrl.url.length)
+
+			queryParams = $.extend({},historyService.existingQueryParams(queryParamUrl.url),queryParams);
+			queryParamUrl.url = queryParamUrl.url.split('?')[0];
+			//appending query params
+			for (var key in queryParams) {
+			  if (queryParams.hasOwnProperty(key)) {
+			  	var value = queryParams[key];
+			  	queryParamUrl.url+=(queryParamUrl.url.indexOf('?')===-1)?'?':'&';
+			  	queryParamUrl.url+=key+"="+value;
+			  }
+			}
+
+			var modifiedUrl = preHashUrl.url 
+			if(postHashUrl.url)
+				modifiedUrl+="#"+postHashUrl.url;	
+			return modifiedUrl;		
+		},
+		existingQueryParams:function (url) {
+			var existingQueryParams ={};
+			var QSPart = url.split('?')[1];
+			if(QSPart){
+				var keyValPair = QSPart.split('&');
+				keyValPair.forEach(function (keyVal) {
+					keyVal=keyVal.split('=');
+					var key=keyVal[0];
+					var value=keyVal[1];
+					existingQueryParams[key]=value;
+				});
+			}
+			return existingQueryParams;
+		}
+	}
+
 return smartjax;
 }();
