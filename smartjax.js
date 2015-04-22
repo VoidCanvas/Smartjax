@@ -6,7 +6,8 @@ var Smartjax = function() {
 			defaultMethod: 'get',
 			alwaysForce: false,
 			alwaysStore: true,
-			defaultStorageName: 'SmartjaxStore'
+			defaultStorageName: 'SmartjaxStore',
+			store:'tab' // values can be 'page', 'tab' and 'forever' 
 		},
 		//change the defaults
 		setDefaults:function (newValues) {
