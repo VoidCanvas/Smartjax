@@ -107,6 +107,17 @@ This function is parameterless and cleans all the saved records.
 
 The function takes an object as a parameter. where you can mention the properties given above. By default the default call method is 'get', but you can change it for all calls. Same in case of force and store.
 
+**changeUrl()**
+
+	Smartjax.changeUrl({
+		url:'/my-relative-url',
+		params:{
+			query1:'query text',
+			myQuery:'my own query'
+		}
+	});
+
+The property 'url' is optional. If you don't provide, it will execute with current url. The second property 'params' is to take a JSON object with query string params and values. If any param is already present in the url it will replace the previous value with the new one you provide. 
 
 ## Pipelined features
 * support of ID. It will make saving data and retrieving faster.
