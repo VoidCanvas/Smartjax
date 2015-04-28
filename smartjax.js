@@ -99,6 +99,22 @@ var Smartjax = function() {
 			}
 		},
 
+		storageName:function (requestObj) {
+			if (requestObj.store===true)
+				requestObj.store=defaults.store;
+			if(requestObj.store){
+				switch(requestObj.store.toLowerCase()){
+					case 'tab':
+						return "sessionStorage";
+					case 'page'
+						return "globalVariable";
+					case 'forever'
+						return "localStorage";
+				}
+			}
+			return null;
+		}
+
 		returnWithAddedStore:function(params) {
 			var newDeferred= new $.Deferred();
 			var requiredRequestObj = this.getOriginalRequestObject(params.requestObj);
@@ -106,7 +122,8 @@ var Smartjax = function() {
 			defaultPromise.done(function (apiResult) {
 				storeService.save({
 					key:params.storeId,
-					value:apiResult
+					value:apiResult,
+					store:helper.storageName()
 				});
 				groupService.registerGroup(params.requestObj,params.storeId)
 				newDeferred.resolve(apiResult);
