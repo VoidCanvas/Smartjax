@@ -36,13 +36,20 @@ var Smartjax = function() {
 			this.cleanStore({clearAll:true})
 		},
 		cleanStore:function (params) {
+			//clear things basing on ids first
+			var ids=params.ids;
+			groupService.clearIds(ids);
+
+			//clear groups
 			var groups=params.groups;
+			groupService.clearGroups(groups);
+			
+			//check and clear all
 			var clearAll=params.clearAll;
 			if(clearAll===true){
 				helper.clearAll();
 				return true;
 			}
-			groupService.clearGroups(groups);
 		},
 		/*
 			if you pass a string, it will completely replace the browser url
@@ -70,6 +77,11 @@ var Smartjax = function() {
 	var helper={
 		//following function creates a store id
 		buildRequestStoreId:function (requestObj) {
+			//if id is provided by the user than use as it is.
+			if(requestObj.id)
+				return requestObj.id;
+
+			//else create dynamic id
 			var storeId="";
 			var url=requestObj.url;
 			//removing slashes
@@ -266,9 +278,19 @@ var Smartjax = function() {
 				console.log("group "+groupName+" cleared from Smartjax store");
 			}
 		},
+		remove:function (id) {
+			storeService.clearStoreId(id);
+		},
 		clearGroups:function (groups) {
 			if(groups && groups.length){
 				groups.forEach($.proxy(function (value,index) {
+					this.clearGroupData(value);
+				},this));
+			}
+		},
+		clearId:function (ids) {
+			if(ids && ids.length){
+				ids.forEach($.proxy(function (value,index) {
 					this.clearGroupData(value);
 				},this));
 			}
