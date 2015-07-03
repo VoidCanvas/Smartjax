@@ -1,4 +1,6 @@
 var Smartjax = function() {
+
+
 	// the actual Smartjax to be returned
 	var smartjax={
 		//predefined
@@ -118,14 +120,14 @@ var Smartjax = function() {
 				switch(requestObj.store.toLowerCase()){
 					case 'tab':
 						return "sessionStorage";
-					case 'page'
+					case 'page':
 						return "globalVariable";
-					case 'forever'
+					case 'forever':
 						return "localStorage";
 				}
 			}
 			return null;
-		}
+		},
 
 		returnWithAddedStore:function(params) {
 			var newDeferred= new $.Deferred();
@@ -135,7 +137,7 @@ var Smartjax = function() {
 				storeService.save({
 					key:params.storeId,
 					value:apiResult,
-					store:helper.storageName()
+					store:helper.storageName(params)
 				});
 				groupService.registerGroup(params.requestObj,params.storeId)
 				newDeferred.resolve(apiResult);
@@ -288,10 +290,10 @@ var Smartjax = function() {
 				},this));
 			}
 		},
-		clearId:function (ids) {
+		clearIds:function (ids) {
 			if(ids && ids.length){
 				ids.forEach($.proxy(function (value,index) {
-					this.clearGroupData(value);
+					this.remove(value);
 				},this));
 			}
 		}
