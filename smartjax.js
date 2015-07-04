@@ -40,7 +40,7 @@ var Smartjax = function() {
 		cleanStore:function (params) {
 			//clear things basing on ids first
 			var ids=params.ids;
-			groupService.clearIds(ids);
+			storeService.remove(ids);
 
 			//clear groups
 			var groups=params.groups;
@@ -231,6 +231,19 @@ var Smartjax = function() {
 		},
 		clearStoreId:function (storeId) {
 			sessionStorage.removeItem(storeId);
+		},
+		remove:function (ids) {
+			if(typeof ids == "string")
+				ids=[ids];
+			var store = storeService.getFullStore();
+			ids.forEach(function (id) {
+				var index = store.storeIds.indexOf(id);
+				if(index!=-1){
+					store.storeIds.splice(index,1);
+					this.clearStoreId(id);
+				}
+			}.bind(this));
+			storeService.setFullStore(store);
 		}
 	}
 
@@ -280,9 +293,7 @@ var Smartjax = function() {
 				console.log("group "+groupName+" cleared from Smartjax store");
 			}
 		},
-		remove:function (id) {
-			storeService.clearStoreId(id);
-		},
+		
 		clearGroups:function (groups) {
 			if(groups && groups.length){
 				groups.forEach($.proxy(function (value,index) {
@@ -290,14 +301,9 @@ var Smartjax = function() {
 				},this));
 			}
 		},
-		clearIds:function (ids) {
-			if(ids && ids.length){
-				ids.forEach($.proxy(function (value,index) {
-					this.remove(value);
-				},this));
-			}
-		}
+		
 	}
+
 
 	var historyService={
 		//it will directly replace the url without loading the page
