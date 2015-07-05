@@ -70,6 +70,19 @@ If *store* property is set to false in the call, the response will not be saved.
 		store:false
 	});
 
+**id**
+
+You can provide indevidual *id* to each call. So that you can indevidually identify a call. You can clear the saved response of an id.
+
+	Smartjax.ajax({
+		url:'http://httpbin.org/post',
+		type: 'POST',
+		data:{
+			a:1,b:2
+		},
+		id:"i1"
+	});
+
 **group**
 
 You can group the calls using the *group* parameter. For the time being, the group is useful at the time of cleaning the store.
@@ -85,9 +98,9 @@ You can group the calls using the *group* parameter. For the time being, the gro
 
 **cleanStore(param)**
 
-This function is used to clean the store. Right now group wise cleaning is supported in Smartjax.
+This function is used to clean the store. You can provide list of groups or ids or both to be cleaned.
 	
-	Smartjax.cleanStore({groups:["g1"]});
+	Smartjax.cleanStore({groups:["g1"]},{ids:["i1"]});
 
 The above syntax make the call record clean for the particular group. Other parameters will be supported soon in this function.
 
@@ -120,5 +133,5 @@ The function takes an object as a parameter. where you can mention the propertie
 The property 'url' is optional. If you don't provide, it will execute with current url. The second property 'params' is to take a JSON object with query string params and values. If any param is already present in the url it will replace the previous value with the new one you provide. 
 
 ## Pipelined features
-* support of ID. It will make saving data and retrieving faster.
 * Record and Mock services, which will help you to develop UI even if your api is not ready.
+* Store based on type
