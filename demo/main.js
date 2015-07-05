@@ -52,7 +52,7 @@ $("#btn_c3_g1").on('click',function () {
 	$("#resultContainer").html('');
 	$("#callMsgBoard").html("Call in progress!!");
 	var promise=Smartjax.ajax({
-		url:'http://httpbin.org/get',
+		url:'http://headers.jsontest.com/',
 		type: 'GET',
 		group:'g1'
 	});

@@ -40,11 +40,13 @@ var Smartjax = function() {
 		cleanStore:function (params) {
 			//clear things basing on ids first
 			var ids=params.ids;
-			storeService.remove(ids);
+			if(ids)
+				storeService.remove(ids);
 
 			//clear groups
 			var groups=params.groups;
-			groupService.clearGroups(groups);
+			if(groups)
+				groupService.clearGroups(groups);
 			
 			//check and clear all
 			var clearAll=params.clearAll;
