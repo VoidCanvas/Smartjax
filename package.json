@@ -1,0 +1,26 @@
+{
+  "name": "smartjax",
+  "version": "1.1.0",
+  "description": "Smartjax stores your api responses and do not ping the server in the same ajax call for the second time. Eg: you display your logged in user's summery in the right top cornor of your site. But to display that in every page you either need to make an ajax call, or have to make a server side processing. But using smartjax, you will get rid of all those processing. It will make the first call to get the user info and will store it internally. For you implementing this is not at all difficult. You don't have to think of all these storing and retrieving thing. You just have to use Smartjax.ajax() instead of $.ajax(), that's it.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/metalshan/smartjax"
+  },
+  "keywords": [
+    "smartjax",
+    "smartjax.js"
+  ],
+  "author": "Paul Shan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/metalshan/smartjax/issues"
+  },
+  "homepage": "https://github.com/metalshan/smartjax",
+  "dependencies": {
+    "jquery": ">=1.4"
+  }
+}

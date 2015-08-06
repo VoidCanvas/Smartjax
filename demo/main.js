@@ -52,7 +52,7 @@ $("#btn_c3_g1").on('click',function () {
 	$("#resultContainer").html('');
 	$("#callMsgBoard").html("Call in progress!!");
 	var promise=Smartjax.ajax({
-		url:'http://headers.jsontest.com/',
+		url:'http://localhost:8000/api/db-test',
 		type: 'GET',
 		group:'g1'
 	});
@@ -68,7 +68,7 @@ $("#btn_c4_g2").on('click',function () {
 	$("#resultContainer").html('');
 	$("#callMsgBoard").html("Call in progress!!");
 	var promise=Smartjax.ajax({
-		url:'http://time.jsontest.com/',
+		url:'http://localhost:8000/api/db-test2',
 		type: 'GET',
 		group:'g2'
 	});
