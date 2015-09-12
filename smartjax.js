@@ -1,6 +1,5 @@
 var Smartjax = function() {
 
-
 	// the actual Smartjax to be returned
 	var smartjax={
 		
@@ -12,7 +11,7 @@ var Smartjax = function() {
 			alwaysForce: false,
 			alwaysStore: true,
 			defaultStorageName: 'SmartjaxStore',
-			store:'tab' // values can be 'page', 'tab' and 'forever' 
+			store:'page' // values can be 'page', 'tab' and 'forever' 
 		},
 
 		/*
@@ -27,8 +26,8 @@ var Smartjax = function() {
 			//generating unique requestStoreId
 			var requestStoreId = helper.buildRequestStoreId(requestObj);
 			//make calls accordingly
-			if(!helper.isForce(requestObj) && storeService.isInStore(requestStoreId)){
-				return 	helper.returnFromStore(requestStoreId, requestObj.success);
+			if(!helper.isForce(requestObj) && storeService.isInStore(requestStoreId, requestObj.store)){
+				return 	helper.returnFromStore(requestStoreId, requestObj.store ,requestObj.success);
 			}
 			else{
 				if(helper.shouldStore(requestObj))
@@ -136,20 +135,33 @@ var Smartjax = function() {
 			Where to store?
 			In page as an JS object, or in tab as sessionStorage, or forever as localStorage
 		*/
-		storageName:function (requestObj) {
-			if (requestObj.store===true)
-				requestObj.store=defaults.store;
-			if(requestObj.store){
-				switch(requestObj.store.toLowerCase()){
+		getStorageObj:function (requestObj) {
+			var storeName = smartjax.defaults.store;
+			var store=null;
+			if(typeof requestObj == "string")
+				storeName = requestObj;
+			else
+				if(requestObj && requestObj.store===false)
+					storeName=null;
+
+			//if session/local Storage support is not there, return page by default
+			if(!Storage)
+				return pageStore;
+
+			if(storeName){
+				switch(storeName.toLowerCase()){
 					case 'tab':
-						return "sessionStorage";
+						store = sessionStorage;
+						break;
 					case 'page':
-						return "globalVariable";
+						store = pageStore;
+						break;
 					case 'forever':
-						return "localStorage";
+						store = localStorage;
+						break;
 				}
 			}
-			return null;
+			return store;
 		},
 
 		/*
@@ -166,7 +178,7 @@ var Smartjax = function() {
 				storeService.save({
 					key:params.storeId,
 					value:apiResult,
-					store:helper.storageName(params)
+					storeName:params.store
 				});
 				groupService.registerGroup(params.requestObj,params.storeId)
 				newDeferred.resolve(apiResult);
@@ -188,10 +200,11 @@ var Smartjax = function() {
 			return request;
 		},
 
-		returnFromStore:function(key,successCallBck) {
+		returnFromStore:function(key,storeName, successCallBck) {
 			var newDeferred= new $.Deferred();
 			var apiResult = storeService.fetch({
-				key:key
+				key:key,
+				storeName:storeName
 			});
 			if(successCallBck && typeof(successCallBck)==="function")
 				successCallBck();
@@ -230,46 +243,66 @@ var Smartjax = function() {
 	//service related to storage
 	var	storeService={
 		getFullStore:function (storeName) {
-			if(!storeName)
-				return JSON.parse(sessionStorage.getItem("SmartjaxStore"));
-			else
-				return JSON.parse(sessionStorage.getItem(storeName));
+			storeName = storeName || smartjax.defaults.store;
+
+			var storeObj = helper.getStorageObj(storeName).getItem("SmartjaxStore");
+			if(storeName && storeName.toLowerCase()!="page")
+				storeObj = JSON.parse(storeObj);
+			return storeObj;
 		},
 		setFullStore:function (storeData,storeName) {
-			if(!storeName)
-				sessionStorage.setItem("SmartjaxStore", JSON.stringify(storeData));
+			storeName = storeName || smartjax.defaults.store;
+
+			var store = helper.getStorageObj(storeName);
+			if(storeName && storeName.toLowerCase()=="page")
+				store.setItem("SmartjaxStore", storeData);
 			else
-				sessionStorage.setItem(storeName, JSON.stringify(storeData))
+				store.setItem("SmartjaxStore", JSON.stringify(storeData));
 		},
 		save:function (reqResToSave) {
-			if(typeof(Storage)){
-				if(!this.isInStore(reqResToSave.key))
-					this.registerNewKey(reqResToSave.key);
-				sessionStorage.setItem(reqResToSave.key, JSON.stringify(reqResToSave.value));
-			}
+			var store = helper.getStorageObj(reqResToSave.storeName);
+
+			//registers teh key
+			if(!this.isInStore(reqResToSave.key, reqResToSave.storeName))
+				this.registerNewKey(reqResToSave.key, reqResToSave.storeName, {status: "success"});
+
+			store.setItem(reqResToSave.key, JSON.stringify(reqResToSave.value));
+			
 		},
 		fetch:function (reqResToFetch) {
-			var stringResponse= sessionStorage.getItem(reqResToFetch.key)
-			return JSON.parse(stringResponse);
+			var store = helper.getStorageObj(reqResToFetch.storeName);
+
+			var response= store.getItem(reqResToFetch.key);
+			if(reqResToFetch.storeName && reqResToFetch.storeName.toLowerCase()=="page")
+				return response;
+			else
+				return JSON.parse(response);
 		},
-		isInStore:function (storeId) {
-			var storeIds = this.getFullStore() && this.getFullStore().storeIds;
+		isInStore:function (storeId, storeName) {
+			storeName = storeName || smartjax.defaults.store;
+
+			var storeIds = this.getFullStore(storeName) && this.getFullStore(storeName).storeIds;
 			if(storeIds && storeIds.length && storeIds.indexOf(storeId)!=-1)
 				return true;
 			else
 				return false;
 		},
-		registerNewKey:function (key) {
-			var smartjaxStore = this.getFullStore();
+		registerNewKey:function (key, storeName, options) {
+			storeName = storeName || smartjax.defaults.store;
+
+			var smartjaxStore = this.getFullStore(storeName);
 			if(!smartjaxStore)
 				smartjaxStore={};
 			if(!smartjaxStore.storeIds || !smartjaxStore.storeIds.length)
 				smartjaxStore.storeIds=[];
 			smartjaxStore.storeIds.push(key);
-			this.setFullStore(smartjaxStore);		
+			this.setFullStore(smartjaxStore,storeName);		
 		},
-		clearStoreId:function (storeId) {
-			sessionStorage.removeItem(storeId);
+		clearStoreId:function (storeId, storeName) {
+			storeName = storeName || smartjax.defaults.store;
+			
+			var store = helper.getStorageObj(storeName);
+			store.removeItem(storeId);
 		},
 		remove:function (ids) {
 			if(typeof ids == "string")
@@ -411,5 +444,18 @@ var Smartjax = function() {
 		}
 	}
 
+	// the page level storage
+	var pageStore={
+		SmartjaxStore:{},
+		getItem:function (id) {
+			return this[id];
+		},
+		setItem:function (id,obj) {
+			this[id]=obj;
+		},
+		removeItem:function (id) {
+			this.setItem(id,null);
+		}
+	};
 return smartjax;
 }();
