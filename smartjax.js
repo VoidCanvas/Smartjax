@@ -3,7 +3,10 @@ var Smartjax = function() {
 
 	// the actual Smartjax to be returned
 	var smartjax={
-		//predefined
+		
+		/*
+			These are the default values smartjax uses in operations
+		*/
 		defaults:{
 			defaultMethod: 'get',
 			alwaysForce: false,
@@ -11,7 +14,10 @@ var Smartjax = function() {
 			defaultStorageName: 'SmartjaxStore',
 			store:'tab' // values can be 'page', 'tab' and 'forever' 
 		},
-		//change the defaults
+
+		/*
+			This method helps to override the defaults
+		*/
 		setDefaults:function (newValues) {
 			$.extend(this.defaults,newValues);
 		},
@@ -34,9 +40,11 @@ var Smartjax = function() {
 					return $.ajax(helper.getOriginalRequestObject(requestObj));	
 			}
 		},
+		//clears everything smartjax cached
 		cleanAll:function () {
 			this.cleanStore({clearAll:true})
 		},
+		//cleans specific items (specific ids and groups)
 		cleanStore:function (params) {
 			//clear things basing on ids first
 			var ids=params.ids;
@@ -55,6 +63,8 @@ var Smartjax = function() {
 				return true;
 			}
 		},
+
+
 		/*
 			if you pass a string, it will completely replace the browser url
 			if a JSON object is sent as a param with two properties it will work accordingly
@@ -79,7 +89,10 @@ var Smartjax = function() {
 
 	//multiple helper function to use services
 	var helper={
-		//following function creates a store id
+		/*
+			following function creates a store id
+			If id is already given in the request object than use it, else generate
+		*/
 		buildRequestStoreId:function (requestObj) {
 			//if id is provided by the user than use as it is.
 			if(requestObj.id)
@@ -100,6 +113,8 @@ var Smartjax = function() {
 				storeId+=JSON.stringify(requestObj.data);
 			return storeId;
 		},
+
+		//check if the call is a forced call
 		isForce:function (requestObj) {
 			if(typeof(requestObj.force)==="boolean")
 				return requestObj.force;
@@ -107,6 +122,8 @@ var Smartjax = function() {
 				return smartjax.defaults.alwaysForce;
 			}
 		},
+
+		//check if this call response need to be stored
 		shouldStore:function (requestObj) {
 			if(typeof(requestObj.store)==="boolean")
 				return requestObj.store;
@@ -115,6 +132,10 @@ var Smartjax = function() {
 			}
 		},
 
+		/* 
+			Where to store?
+			In page as an JS object, or in tab as sessionStorage, or forever as localStorage
+		*/
 		storageName:function (requestObj) {
 			if (requestObj.store===true)
 				requestObj.store=defaults.store;
@@ -131,9 +152,15 @@ var Smartjax = function() {
 			return null;
 		},
 
+		/*
+			This handles the actual ajax call and storing
+		*/
 		returnWithAddedStore:function(params) {
 			var newDeferred= new $.Deferred();
+
+			//geting the actual requiest object by deleting the smartjax specific variables
 			var requiredRequestObj = this.getOriginalRequestObject(params.requestObj);
+			
 			var defaultPromise=$.ajax(requiredRequestObj);
 			defaultPromise.done(function (apiResult) {
 				storeService.save({
@@ -149,12 +176,18 @@ var Smartjax = function() {
 			});
 			return newDeferred.promise();
 		},
+
+		/*
+			This method removes the unnecessary properties
+			from the request object which are used for smartjax operations only
+		*/
 		getOriginalRequestObject:function (requestObj) {
 			var request = $.extend({},requestObj);
 			delete request.store;
 			delete request.force;
 			return request;
 		},
+
 		returnFromStore:function(key,successCallBck) {
 			var newDeferred= new $.Deferred();
 			var apiResult = storeService.fetch({
@@ -166,6 +199,8 @@ var Smartjax = function() {
 			newDeferred.resolve(apiResult);
 			return newDeferred.promise();
 		},
+
+		//To find elements from an array from specific key value match
 		findBy:function (array,key,value) {
 			if(!array || !array.length || !key || !value)
 				return null;
@@ -177,6 +212,8 @@ var Smartjax = function() {
 			else
 				return null;
 		},
+
+		//the method who cleans the store actually
 		clearAll:function () {
 			var smartjaxStore = storeService.getFullStore();
 			var storeIds=smartjaxStore && smartjaxStore.storeIds;
@@ -306,7 +343,7 @@ var Smartjax = function() {
 		
 	}
 
-
+	// this service helps to manipulate urls. Pushing and poping browser state
 	var historyService={
 		//it will directly replace the url without loading the page
 		//takes string as param
