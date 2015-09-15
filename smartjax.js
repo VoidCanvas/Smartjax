@@ -11,7 +11,7 @@ var Smartjax = function() {
 			alwaysForce: false,
 			alwaysStore: true,
 			defaultStorageName: 'SmartjaxStore',
-			store:'page' // values can be 'page', 'tab' and 'forever' 
+			store:'tab' // values can be 'page', 'tab' and 'forever' 
 		},
 
 		/*
@@ -178,7 +178,7 @@ var Smartjax = function() {
 				storeService.save({
 					key:params.storeId,
 					value:apiResult,
-					storeName:params.store
+					storeName:params.requestObj.store
 				});
 				groupService.registerGroup(params.requestObj,params.storeId)
 				newDeferred.resolve(apiResult);
@@ -343,7 +343,7 @@ var Smartjax = function() {
 			}
 			if(selectedGroup.storeIds.indexOf(storeId)==-1)
 				selectedGroup.storeIds.push(storeId);
-			storeService.setFullStore(smartjaxStore);	
+			storeService.setFullStore(smartjaxStore,requestObj.store);	
 			return true;
 		},
 		clearGroupData:function (groupName) {

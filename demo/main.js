@@ -35,6 +35,7 @@ $("#btn_c2_g1").on('click',function () {
 	var promise=Smartjax.ajax({
 		url:'http://httpbin.org/post',
 		type: 'POST',
+		store:"page",
 		data:{
 			a:1,b:2
 		},
@@ -52,8 +53,9 @@ $("#btn_c3_g1").on('click',function () {
 	$("#resultContainer").html('');
 	$("#callMsgBoard").html("Call in progress!!");
 	var promise=Smartjax.ajax({
-		url:'http://localhost:8000/api/db-test',
+		url:'http://headers.jsontest.com/',
 		type: 'GET',
+		store:"forever",
 		group:'g1'
 	});
 	promise.then(function (apiResult) {
@@ -68,7 +70,7 @@ $("#btn_c4_g2").on('click',function () {
 	$("#resultContainer").html('');
 	$("#callMsgBoard").html("Call in progress!!");
 	var promise=Smartjax.ajax({
-		url:'http://localhost:8000/api/db-test2',
+		url:'http://ip.jsontest.com/',
 		type: 'GET',
 		group:'g2'
 	});
