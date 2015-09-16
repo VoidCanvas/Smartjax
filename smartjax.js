@@ -328,7 +328,7 @@ var Smartjax = function() {
 			if(!storeId)
 				storeId=helper.buildRequestStoreId(requestObj);
 			
-			var smartjaxStore = storeService.getFullStore();
+			var smartjaxStore = storeService.getFullStore(requestObj.store);
 			if(!smartjaxStore)
 				smartjaxStore={};
 			if(!smartjaxStore.groups || !smartjaxStore.groups.length)
