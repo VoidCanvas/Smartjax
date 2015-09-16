@@ -53,7 +53,7 @@ $("#btn_c3_g1").on('click',function () {
 	$("#resultContainer").html('');
 	$("#callMsgBoard").html("Call in progress!!");
 	var promise=Smartjax.ajax({
-		url:'http://headers.jsontest.com/',
+		url:'http://jsonplaceholder.typicode.com/posts/1',
 		type: 'GET',
 		store:"forever",
 		group:'g1'
@@ -70,7 +70,7 @@ $("#btn_c4_g2").on('click',function () {
 	$("#resultContainer").html('');
 	$("#callMsgBoard").html("Call in progress!!");
 	var promise=Smartjax.ajax({
-		url:'http://ip.jsontest.com/',
+		url:'http://jsonplaceholder.typicode.com/posts/3',
 		type: 'GET',
 		group:'g2'
 	});
@@ -86,7 +86,7 @@ $("#btn_c5_g2").on('click',function () {
 	$("#resultContainer").html('');
 	$("#callMsgBoard").html("Call in progress!!");
 	var promise=Smartjax.ajax({
-		url:'http://echo.jsontest.com/insert-key-here/insert-value-here/key/value',
+		url:'http://jsonplaceholder.typicode.com/posts/2',
 		type: 'GET',
 		group:'g2'
 	});

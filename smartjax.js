@@ -40,26 +40,49 @@ var Smartjax = function() {
 			}
 		},
 		//clears everything smartjax cached
-		cleanAll:function () {
-			this.cleanStore({clearAll:true})
+		cleanAll:function (storeName) {
+			this.cleanStore({clearAll:true}, storeName)
 		},
 		//cleans specific items (specific ids and groups)
-		cleanStore:function (params) {
-			//clear things basing on ids first
-			var ids=params.ids;
-			if(ids)
-				storeService.remove(ids);
-
-			//clear groups
-			var groups=params.groups;
-			if(groups)
-				groupService.clearGroups(groups);
-			
+		cleanStore:function (params, storeName) {
 			//check and clear all
 			var clearAll=params.clearAll;
 			if(clearAll===true){
-				helper.clearAll();
-				return true;
+				if(storeName){
+					helper.clearAll(storeName);
+				}
+				else{
+					helper.clearAll("page");
+					helper.clearAll("tab");
+					helper.clearAll("forever");
+					return true;
+				}
+			}
+
+			//clear things basing on ids first
+			var ids=params.ids;
+			if(ids){
+				if(storeName){
+					storeService.remove(ids,storeName);
+				}
+				else{
+					storeService.remove(ids,"page");
+					storeService.remove(ids,"tab");
+					storeService.remove(ids,"forever");
+				}
+			}
+
+			//clear groups
+			var groups=params.groups;
+			if(groups){
+				if(storeName){
+					groupService.clearGroups(groups,storeName);
+				}
+				else{
+					groupService.clearGroups(groups,"page");
+					groupService.clearGroups(groups,"tab");
+					groupService.clearGroups(groups,"forever");
+				}
 			}
 		},
 
@@ -227,15 +250,15 @@ var Smartjax = function() {
 		},
 
 		//the method who cleans the store actually
-		clearAll:function () {
-			var smartjaxStore = storeService.getFullStore();
+		clearAll:function (storeName) {
+			var smartjaxStore = storeService.getFullStore(storeName);
 			var storeIds=smartjaxStore && smartjaxStore.storeIds;
 			if(storeIds && storeIds.length){
 				storeIds.forEach(function (storeId) {
-					storeService.clearStoreId(storeId);
+					storeService.clearStoreId(storeId,storeName);
 				})
 			}
-			storeService.setFullStore({});
+			storeService.setFullStore({},storeName);
 			console.log("All Smartjax store data cleared");
 		}
 	}
@@ -307,18 +330,20 @@ var Smartjax = function() {
 			var store = helper.getStorageObj(storeName);
 			store.removeItem(storeId);
 		},
-		remove:function (ids) {
+		remove:function (ids, storeName) {
 			if(typeof ids == "string")
 				ids=[ids];
-			var store = storeService.getFullStore();
-			ids.forEach(function (id) {
-				var index = store.storeIds.indexOf(id);
-				if(index!=-1){
-					store.storeIds.splice(index,1);
-					this.clearStoreId(id);
-				}
-			}.bind(this));
-			storeService.setFullStore(store);
+			var store = storeService.getFullStore(storeName);
+			if(store && store.storeIds){
+				ids.forEach(function (id) {
+					var index = store.storeIds.indexOf(id);
+					if(index!=-1){
+						store.storeIds.splice(index,1);
+						this.clearStoreId(id,storeName);
+					}
+				}.bind(this));
+				storeService.setFullStore(store,storeName);
+			}
 		}
 	}
 
@@ -349,9 +374,9 @@ var Smartjax = function() {
 			storeService.setFullStore(smartjaxStore,requestObj.store);	
 			return true;
 		},
-		clearGroupData:function (groupName) {
-			var smartjaxStore=storeService.getFullStore();
-			var selectedGroup = smartjaxStore.groups && smartjaxStore.groups.length && helper.findBy(smartjaxStore.groups,'group',groupName);
+		clearGroupData:function (groupName, storeName) {
+			var smartjaxStore=storeService.getFullStore(storeName);
+			var selectedGroup = smartjaxStore && smartjaxStore.groups && smartjaxStore.groups.length && helper.findBy(smartjaxStore.groups,'group',groupName);
 			var mainStoreIds=smartjaxStore.storeIds;
 			if(!selectedGroup)
 				return false;
@@ -360,19 +385,19 @@ var Smartjax = function() {
 				if(storeIds){
 					storeIds.forEach(function (storeId) {
 						mainStoreIds.splice(mainStoreIds.indexOf(storeId),1);
-						storeService.clearStoreId(storeId)
+						storeService.clearStoreId(storeId, storeName)
 					});					
 				}
 				delete selectedGroup;
-				storeService.setFullStore(smartjaxStore);
+				storeService.setFullStore(smartjaxStore,storeName);
 				console.log("group "+groupName+" cleared from Smartjax store");
 			}
 		},
 		
-		clearGroups:function (groups) {
+		clearGroups:function (groups, storeName) {
 			if(groups && groups.length){
 				groups.forEach($.proxy(function (value,index) {
-					this.clearGroupData(value);
+					this.clearGroupData(value,storeName);
 				},this));
 			}
 		},
