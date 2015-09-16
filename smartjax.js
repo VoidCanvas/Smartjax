@@ -260,13 +260,16 @@ var Smartjax = function() {
 				store.setItem("SmartjaxStore", JSON.stringify(storeData));
 		},
 		save:function (reqResToSave) {
-			var store = helper.getStorageObj(reqResToSave.storeName);
+			var storeName = reqResToSave.storeName || smartjax.defaults.store;
+			var store = helper.getStorageObj(storeName);
 
 			//registers teh key
 			if(!this.isInStore(reqResToSave.key, reqResToSave.storeName))
 				this.registerNewKey(reqResToSave.key, reqResToSave.storeName, {status: "success"});
-
-			store.setItem(reqResToSave.key, JSON.stringify(reqResToSave.value));
+			var objectToSave = reqResToSave.value;
+			if(storeName!="page")
+				objectToSave = JSON.stringify(objectToSave);
+			store.setItem(reqResToSave.key, objectToSave);
 			
 		},
 		fetch:function (reqResToFetch) {
