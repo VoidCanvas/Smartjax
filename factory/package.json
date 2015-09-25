@@ -1,0 +1,19 @@
+{
+	"name": "smartjax-factory",
+	"version": "0.0.0",
+	"description": "The development module files of smartjax will be here. The ../Smartjax.js will be a combined and final version.",
+	"main": "index.js",
+	"scripts": {
+	  "test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Paul Shan <go2mailshan@gmail.com>",
+	"license": "MIT",
+  	"devDependencies" :{ 
+	  	"grunt" : "~0.4.5",
+	  	"load-grunt-config" : "~0.17",
+		"grunt-contrib-uglify" : "~0.9",
+		"grunt-contrib-watch" : "~0.6",
+		"grunt-contrib-concat" : "~0.5",
+		"fs" : "~0"
+	}
+}
