@@ -196,20 +196,28 @@ var Smartjax = function() {
 			//geting the actual requiest object by deleting the smartjax specific variables
 			var requiredRequestObj = this.getOriginalRequestObject(params.requestObj);
 			
-			var defaultPromise=$.ajax(requiredRequestObj);
-			defaultPromise.done(function (apiResult) {
-				storeService.save({
-					key:params.storeId,
-					value:apiResult,
-					storeName:params.requestObj.store
+			//check if call is already in progress
+			var storeId=params.storeId;
+			var promiseOfCall = promiseService.getPromiseFor(storeId);
+			if(!promiseOfCall){
+				//if no previous promise found, create and send
+				var defaultPromise=$.ajax(requiredRequestObj);
+				defaultPromise.done(function (apiResult) {
+					storeService.save({
+						key:storeId,
+						value:apiResult,
+						storeName:params.requestObj.store
+					});
+					groupService.registerGroup(params.requestObj,storeId)
+					newDeferred.resolve(apiResult);
 				});
-				groupService.registerGroup(params.requestObj,params.storeId)
-				newDeferred.resolve(apiResult);
-			});
-			defaultPromise.fail(function (apiResult) {
-				newDeferred.reject(apiResult)
-			});
-			return newDeferred.promise();
+				defaultPromise.fail(function (apiResult) {
+					newDeferred.reject(apiResult)
+				});
+				promiseOfCall=promiseService.setAndRefinePromise(storeId,newDeferred.promise());
+			}
+
+			return promiseOfCall;
 		},
 
 		/*
@@ -261,7 +269,7 @@ var Smartjax = function() {
 			storeService.setFullStore({},storeName);
 			console.log("All Smartjax store data cleared");
 		}
-	}
+	};
 
 	//service related to storage
 	var	storeService={
@@ -345,7 +353,7 @@ var Smartjax = function() {
 				storeService.setFullStore(store,storeName);
 			}
 		}
-	}
+	};
 
 	//group service to handle grouping
 	var groupService={		
@@ -402,7 +410,7 @@ var Smartjax = function() {
 			}
 		},
 		
-	}
+	};
 
 	// this service helps to manipulate urls. Pushing and poping browser state
 	var historyService={
@@ -470,7 +478,33 @@ var Smartjax = function() {
 			}
 			return existingQueryParams;
 		}
-	}
+	};
+
+
+	var promiseService ={
+		promiseStore : {
+			//it will hold the promise objects
+		},
+
+		getPromiseFor:function (storeId) {
+			return this.promiseStore[storeId] && this.promiseStore[storeId].promise;
+		},
+
+		setAndRefinePromise:function (storeId, promise) {
+			this.promiseStore[storeId] = {
+				promise:promise
+			};
+			var newDeferred= new $.Deferred();
+			promise.then(function () {
+				delete(promiseService.promiseStore[storeId]);
+				newDeferred.resolve.apply(this,arguments);
+			},function () {
+				delete(promiseService.promiseStore[storeId]);
+				newDeferred.reject.apply(this,arguments);
+			});
+			return newDeferred.promise();
+		}
+	};
 
 	// the page level storage
 	var pageStore={
@@ -485,5 +519,6 @@ var Smartjax = function() {
 			this.setItem(id,null);
 		}
 	};
+
 return smartjax;
 }();
