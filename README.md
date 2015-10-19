@@ -4,10 +4,21 @@
 [Working demo](http://www.voidcanvas.com/demo/1339smartjax-demo/)
 
 ## Description
-Smartjax stores your api responses and do not ping the server in the same ajax call for the second time. Eg: you display your logged in user's summery in the right top cornor of your site. But to display that in every page you either need to make an ajax call, or have to make a server side processing. But using smartjax, you will get rid of all those processing. It will make the first call to get the user info and will store it internally. For you implementing this is not at all difficult. You don't have to think of all these storing and retrieving thing. You just have to use Smartjax.ajax() instead of $.ajax(), that's it.
+Smartjax stores your api responses and do not ping the server for the same ajax call for the second time (options are available for force call too).
+
+**Example**
+
+You display your logged in user's summery in the right top cornor of your site. But to display that in every page you either need to make an ajax call, or have to make a server side processing. But using smartjax, you will get rid of all those processing. 
+
+Display it by making an ajax call using Smartjax. It will make the first call to get the user info and will store it internally. You can store the information for page level, tab's lifetime level or for forever. You can clear the entire store or the response for a particular one anytime you want.
 
 ## Why useful?
-Firstly, Smartjax.js is a very light weight plugin. Including this in your page will not make it heavy. Secondly, the syntax is almost exactly similar to $.ajax(), so no overhead of learning. Just few extra flags you need to know about. Thirdly, reducing server-client http interaction really gives a performance boost to your application.
+
+	* Reducing http calls will give your site a performance boost.
+	* It will also reduce your server side processing, as the client side itself returns the result.
+	* You can store responses for the lifetime of a page, a tab, or forever.
+	* The plugin is very light weight.
+	* You don't have to learn a lot. Instead of $.ajax(), use Smartjax.ajax() and it will start caching. There are some extra flags and methods you need to know to manage and clear your stored response.
 
 
 ## How to use:
@@ -35,13 +46,66 @@ This is very very simple to use the smartjax. Below is a comparison.
 
 Smartjax caches the result in the client side, and response with the same if you make the call again. 
 
+## Different level of caching
+
+Using the property *store* you can decide should the response be stored till the page refresh, or till the tab closes or forever.
+
+**Page level**
+
+	Smartjax.ajax({
+		url:'http://httpbin.org/post',
+		type: 'POST',
+		data:{
+			a:1,b:2
+		},
+		store:"page"
+	});
+
+This will clear the response once you reload the page or nvigate to another page.
+
+**Tab level**
+
+	Smartjax.ajax({
+		url:'http://httpbin.org/post',
+		type: 'POST',
+		data:{
+			a:1,b:2
+		},
+		store:"tab"
+	});
+
+This will keep the response till the user closes the tab. Even if he refreshes the page or navigate to another, the response will still be with smartjax and will be retured from client side cache of called again. This is also the default store of smartjax.
+
+**Forever**
+
+	Smartjax.ajax({
+		url:'http://httpbin.org/post',
+		type: 'POST',
+		data:{
+			a:1,b:2
+		},
+		store:"forever"
+	});
+
+You don't wanna remove the response of a particular call? Use *forever* as the value of *store*. However smartjax provide you methods to clean your entire store or a particular call response. So you can clear things explicitly, any time you want.
+
+**do not store**
+
+If *store* property is set to false in the call, the response will not be saved. If you do not want to store by default, you can change the store property in defaults. In the next point you will find how to set defaults.
+
+	Smartjax.ajax({
+		url:'http://httpbin.org/post',
+		type: 'POST',
+		data:{
+			a:1,b:2
+		},
+		store:false
+	});
+
+
 ## How to control data flow:
 
 With some extra parameter in the Smartjax.ajax() call you can control the behavior of storing. Some of them also helps to clear the saved data.
-
-**Smartjax**
-
-If you include the library smartjax.js, it will create a global variable Smartjax. This variable contains a function ajax().
 
 **force**
 
@@ -87,9 +151,8 @@ You can group the calls using the *group* parameter. For the time being, the gro
 
 This function is used to clean the store. You can provide list of groups or ids or both to be cleaned.
 	
-	Smartjax.cleanStore({groups:["g1"]},{ids:["i1"]});
+	Smartjax.cleanStore({groups:["g1"], ids:["i1"]});
 
-The above syntax make the call record clean for the particular group. Other parameters will be supported soon in this function.
 
 **cleanAll()**
 
@@ -97,15 +160,12 @@ This function is parameterless and cleans all the saved records.
 	
 	Smartjax.cleanAll();
 
-**setDefaults(param)**
-	
-	Smartjax.setDefaults({
-		defaultMethod: 'get',
-		alwaysForce: false,
-		alwaysStore: true
-	});
-
 The function takes an object as a parameter. where you can mention the properties given above. By default the default call method is 'get', but you can change it for all calls. Same in case of force and store.
+
+
+#Url manipulation 
+
+Smartjax has started supporting url manipulations. Now you can change your browser url without reloading the page using the folowing.
 
 **changeUrl()**
 
@@ -119,75 +179,8 @@ The function takes an object as a parameter. where you can mention the propertie
 
 The property 'url' is optional. If you don't provide, it will execute with current url. The second property 'params' is to take a JSON object with query string params and values. If any param is already present in the url it will replace the previous value with the new one you provide. 
 
-## Different kind of store
-
-You can cache a call in for different types. Below are the examples.
-
-**do not store**
-
-If *store* property is set to false in the call, the response will not be saved. If you do not want to store by default, you can change the store property in defaults. In the next point you will find how to set defaults.
-
-	Smartjax.ajax({
-		url:'http://httpbin.org/post',
-		type: 'POST',
-		data:{
-			a:1,b:2
-		},
-		store:false
-	});
-
-**page level storage**
-
-If you want to store some response in page level; that is, after a page refresh, things should not be there, you have to set the *store* property to "page".
-
-	Smartjax.ajax({
-		url:'http://httpbin.org/post',
-		type: 'POST',
-		data:{
-			a:1,b:2
-		},
-		store:"page"
-	});
-
-
-**tab level storage**
-
-If you want to store some response in tab level; that is, if you access the site in a particular tab and no matter how many times you refresh or navigate to other pages of the site, the response will be cached there.
-
-	Smartjax.ajax({
-		url:'http://httpbin.org/post',
-		type: 'POST',
-		data:{
-			a:1,b:2
-		},
-		store:"tab"
-	});
-
-
-**forever storage**
-
-If you want to cache a call response forever in your browser, you have to set the value of *store* to "forever".
-
-	Smartjax.ajax({
-		url:'http://httpbin.org/post',
-		type: 'POST',
-		data:{
-			a:1,b:2
-		},
-		store:"forever"
-	});
-
-
-## Setting defaults
-
-To set smartjax defaults, you need to call the function *setDefaults* once with the default values you want.
-
-	Smartjax.setDefaults({
-		alwaysForce: false,
-		alwaysStore: true,
-		store:'tab'
-	});
-
 
 ## Pipelined features
-* Record and Mock services, which will help you to develop UI even if your api is not ready.
+
+	* Record and Mock services, which will help you to develop UI even if your api is not ready.
+	* Url based caching. Caching an entire html page.
