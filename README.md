@@ -123,7 +123,7 @@ Defaulty the value is false.
 
 **id**
 
-You can provide indevidual *id* to each call. So that you can indevidually identify a call. You can clear the saved response of an id.
+You can provide individual *id* to each call. So that you can individually identify a call. You can clear the saved response of an id.
 
 	Smartjax.ajax({
 		url:'http://httpbin.org/post',
