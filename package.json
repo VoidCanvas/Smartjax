@@ -1,0 +1,25 @@
+{
+  "name": "smartjax",
+  "version": "2.0.0",
+  "description": "Smartjax stores your api responses and do not ping the server for the same ajax call for the second time (options are available for force call too).",
+  "main": "smartjax.min.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VoidCanvas/Smartjax.git"
+  },
+  "keywords": [
+    "cache",
+    "api",
+    "ajax"
+  ],
+  "author": "Paul Shan <go2mailshan@gmail.com> (http://voidcanvas.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/VoidCanvas/Smartjax/issues"
+  },
+  "homepage": "https://github.com/VoidCanvas/Smartjax#readme"
+}
+
