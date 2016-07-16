@@ -530,3 +530,6 @@ var	storeService={
 
 return smartjax;
 }();
+
+module = module || {};
+module.exports = Smartjax;
