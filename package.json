@@ -1,6 +1,6 @@
 {
   "name": "smartjax",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Smartjax stores your api responses and do not ping the server for the same ajax call for the second time (options are available for force call too).",
   "main": "smartjax.min.js",
   "scripts": {
