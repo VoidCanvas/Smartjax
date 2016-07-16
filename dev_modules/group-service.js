@@ -28,10 +28,10 @@ var groupService={
 	clearGroupData:function (groupName, storeName) {
 		var smartjaxStore=storeService.getFullStore(storeName);
 		var selectedGroup = smartjaxStore && smartjaxStore.groups && smartjaxStore.groups.length && helper.findBy(smartjaxStore.groups,'group',groupName);
-		var mainStoreIds=smartjaxStore.storeIds;
-		if(!selectedGroup)
+		if(!selectedGroup || !smartjaxStore)
 			return false;
 		else{
+			var mainStoreIds=smartjaxStore.storeIds;
 			var storeIds=selectedGroup.storeIds;
 			if(storeIds){
 				storeIds.forEach(function (storeId) {
