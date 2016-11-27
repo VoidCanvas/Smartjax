@@ -3,14 +3,14 @@ var Smartjax = function() {
 
 
 //group service to handle grouping
-var groupService={
+var groupService={		
 	registerGroup:function (requestObj,storeId) {
 		var group = requestObj.group;
 		if(!group)
 			return null;
 		if(!storeId)
 			storeId=helper.buildRequestStoreId(requestObj);
-
+		
 		var smartjaxStore = storeService.getFullStore(requestObj.store);
 		if(!smartjaxStore)
 			smartjaxStore={};
@@ -21,12 +21,12 @@ var groupService={
 			selectedGroup={
 				group:requestObj.group,
 				storeIds:[],
-			};
+			}
 			smartjaxStore.groups.push(selectedGroup);
 		}
 		if(selectedGroup.storeIds.indexOf(storeId)==-1)
 			selectedGroup.storeIds.push(storeId);
-		storeService.setFullStore(smartjaxStore,requestObj.store);
+		storeService.setFullStore(smartjaxStore,requestObj.store);	
 		return true;
 	},
 	clearGroupData:function (groupName, storeName) {
@@ -40,23 +40,23 @@ var groupService={
 			if(storeIds){
 				storeIds.forEach(function (storeId) {
 					mainStoreIds.splice(mainStoreIds.indexOf(storeId),1);
-					storeService.clearStoreId(storeId, storeName);
-				});
+					storeService.clearStoreId(storeId, storeName)
+				});					
 			}
 			delete selectedGroup;
 			storeService.setFullStore(smartjaxStore,storeName);
 			console.log("group "+groupName+" cleared from Smartjax store");
 		}
 	},
-
+	
 	clearGroups:function (groups, storeName) {
 		if(groups && groups.length){
-			groups.forEach($.proxy(function (value) {
+			groups.forEach($.proxy(function (value,index) {
 				this.clearGroupData(value,storeName);
 			},this));
 		}
 	},
-
+	
 };
 
 
@@ -105,7 +105,7 @@ var helper={
 		}
 	},
 
-	/*
+	/* 
 		Where to store?
 		In page as an JS object, or in tab as sessionStorage, or forever as localStorage
 	*/
@@ -146,7 +146,7 @@ var helper={
 
 		//geting the actual requiest object by deleting the smartjax specific variables
 		var requiredRequestObj = this.getOriginalRequestObject(params.requestObj);
-
+		
 		//check if call is already in progress
 		var storeId=params.storeId;
 		var promiseOfCall = promiseService.getPromiseFor(storeId);
@@ -159,11 +159,11 @@ var helper={
 					value:apiResult,
 					storeName:params.requestObj.store
 				});
-				groupService.registerGroup(params.requestObj,storeId);
+				groupService.registerGroup(params.requestObj,storeId)
 				newDeferred.resolve(apiResult);
 			});
 			defaultPromise.fail(function (apiResult) {
-				newDeferred.reject(apiResult);
+				newDeferred.reject(apiResult)
 			});
 			promiseOfCall=promiseService.setAndRefinePromise(storeId,newDeferred.promise());
 		}
@@ -199,8 +199,8 @@ var helper={
 	findBy:function (array,key,value) {
 		if(!array || !array.length || !key || !value)
 			return null;
-		var allMatched = $.grep(array, function(e){
-			return e[key] == value;
+		var allMatched = $.grep(array, function(e){ 
+			return e[key] == value; 
 		});
 		if(allMatched && allMatched.length && allMatched[0])
 			return allMatched[0];
@@ -215,7 +215,7 @@ var helper={
 		if(storeIds && storeIds.length){
 			storeIds.forEach(function (storeId) {
 				storeService.clearStoreId(storeId,storeName);
-			});
+			})
 		}
 		storeService.setFullStore({},storeName);
 		console.log("All Smartjax store data cleared");
@@ -249,31 +249,31 @@ var historyService={
 		var splittedByHash = currentUrl.split('#');
 		var preHashUrl = {
 			url:splittedByHash[0]
-		};
+		}
 		var postHashUrl = {
 			url:splittedByHash[1]
-		};
-
+		}
+		
 		//if the query params is to be added before hash or after
 		var queryParamUrl = (postHashUrl.url && postHashUrl.url.indexOf('?')!=-1)?postHashUrl:preHashUrl;
-		if(queryParamUrl.url[queryParamUrl.url.length-1]==='/'){
-			queryParamUrl.url=queryParamUrl.url.slice(queryParamUrl.url.length-1,queryParamUrl.url.length);
-		}
+		if(queryParamUrl.url[queryParamUrl.url.length-1]==='/')
+			queryParamUrl.url=queryParamUrl.url.slice(queryParamUrl.url.length-1,queryParamUrl.url.length)
+
 		queryParams = $.extend({},historyService.existingQueryParams(queryParamUrl.url),queryParams);
 		queryParamUrl.url = queryParamUrl.url.split('?')[0];
 		//appending query params
 		for (var key in queryParams) {
-			if (queryParams.hasOwnProperty(key)) {
-				var value = queryParams[key];
-				queryParamUrl.url+=(queryParamUrl.url.indexOf('?')===-1)?'?':'&';
-				queryParamUrl.url+=key+"="+value;
-			}
+		  if (queryParams.hasOwnProperty(key)) {
+		  	var value = queryParams[key];
+		  	queryParamUrl.url+=(queryParamUrl.url.indexOf('?')===-1)?'?':'&';
+		  	queryParamUrl.url+=key+"="+value;
+		  }
 		}
 
-		var modifiedUrl = preHashUrl.url;
+		var modifiedUrl = preHashUrl.url 
 		if(postHashUrl.url)
-			modifiedUrl+="#"+postHashUrl.url;
-		return modifiedUrl;
+			modifiedUrl+="#"+postHashUrl.url;	
+		return modifiedUrl;		
 	},
 	existingQueryParams:function (url) {
 		var existingQueryParams ={};
@@ -335,7 +335,7 @@ var promiseService ={
 
 // the actual Smartjax to be returned
 var smartjax={
-
+	
 	/*
 		These are the default values smartjax uses in operations
 	*/
@@ -344,7 +344,7 @@ var smartjax={
 		alwaysForce: false,
 		alwaysStore: true,
 		defaultStorageName: 'SmartjaxStore',
-		store:'tab' // values can be 'page', 'tab' and 'forever'
+		store:'tab' // values can be 'page', 'tab' and 'forever' 
 	},
 
 	/*
@@ -366,15 +366,15 @@ var smartjax={
 			if(helper.shouldStore(requestObj))
 				return helper.returnWithAddedStore({
 					storeId:requestStoreId,
-					requestObj:requestObj
+					requestObj:requestObj	
 				});
 			else
-				return $.ajax(helper.getOriginalRequestObject(requestObj));
+				return $.ajax(helper.getOriginalRequestObject(requestObj));	
 		}
 	},
 	//clears everything smartjax cached
 	cleanAll:function (storeName) {
-		this.cleanStore({clearAll:true}, storeName);
+		this.cleanStore({clearAll:true}, storeName)
 	},
 	//cleans specific items (specific ids and groups)
 	cleanStore:function (params, storeName) {
@@ -440,7 +440,7 @@ var smartjax={
 			url = historyService.addQueryString(url,params);
 		historyService.replaceURL(url);
 	}
-};
+}
 
 
 //service related to storage
@@ -473,7 +473,7 @@ var	storeService={
 		if(storeName!="page")
 			objectToSave = JSON.stringify(objectToSave);
 		store.setItem(reqResToSave.key, objectToSave);
-
+		
 	},
 	fetch:function (reqResToFetch) {
 		var store = helper.getStorageObj(reqResToFetch.storeName);
@@ -493,7 +493,7 @@ var	storeService={
 		else
 			return false;
 	},
-	registerNewKey:function (key, storeName) {
+	registerNewKey:function (key, storeName, options) {
 		storeName = storeName || smartjax.defaults.store;
 
 		var smartjaxStore = this.getFullStore(storeName);
@@ -502,11 +502,11 @@ var	storeService={
 		if(!smartjaxStore.storeIds || !smartjaxStore.storeIds.length)
 			smartjaxStore.storeIds=[];
 		smartjaxStore.storeIds.push(key);
-		this.setFullStore(smartjaxStore,storeName);
+		this.setFullStore(smartjaxStore,storeName);		
 	},
 	clearStoreId:function (storeId, storeName) {
 		storeName = storeName || smartjax.defaults.store;
-
+		
 		var store = helper.getStorageObj(storeName);
 		store.removeItem(storeId);
 	},
@@ -530,6 +530,10 @@ var	storeService={
 
 return smartjax;
 }();
-
-module = module || {};
-module.exports = Smartjax;
+if(typeof module!=="undefined"){
+	module.exports = Smartjax;
+} else {
+	if(typeof window!=="undefined"){
+		window.Smartjax = Smartjax;
+	}
+}

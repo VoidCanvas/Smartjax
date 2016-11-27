@@ -1,5 +1,9 @@
 return smartjax;
 }();
-
-module = module || {};
-module.exports = Smartjax;
+if(typeof module!=="undefined"){
+	module.exports = Smartjax;
+} else {
+	if(typeof window!=="undefined"){
+		window.Smartjax = Smartjax;
+	}
+}
