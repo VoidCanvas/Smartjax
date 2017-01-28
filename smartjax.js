@@ -2,6 +2,23 @@ var Smartjax = function() {
 
 
 
+var expirationService = {
+	timer: null,
+	setExpirationWindow: function (milliseconds,seconds,minutes,hours,days,cleanAll) {
+		//let's clear it if you already have an expiration timer
+		if(this.timer!==null){
+			clearInterval(this.timer);
+		}
+		var expirationWindowInMilliseconds = milliseconds + (seconds + (minutes + (hours + (days * 24))*60)*60) * 1000;
+		if(cleanAll===true){
+			this.timer = setInterval(function(){
+				Smartjax.cleanAll();
+			}.bind(this), expirationWindowInMilliseconds);
+		}
+	}
+};
+
+
 //group service to handle grouping
 var groupService={		
 	registerGroup:function (requestObj,storeId) {
@@ -21,6 +38,7 @@ var groupService={
 			selectedGroup={
 				group:requestObj.group,
 				storeIds:[],
+				firstSavedOn: Date.now()
 			};
 			smartjaxStore.groups[requestObj.group]=selectedGroup;
 		}
@@ -378,7 +396,7 @@ var smartjax={
 	},
 	//clears everything smartjax cached
 	cleanAll:function (storeName) {
-		this.cleanStore({clearAll:true}, storeName)
+		this.cleanStore({clearAll:true}, storeName);
 	},
 	//cleans specific items (specific ids and groups)
 	cleanStore:function (params, storeName) {
@@ -423,7 +441,15 @@ var smartjax={
 		}
 	},
 
-
+	setExpirationWindow: function(obj){
+		var milliseconds = obj.milliseconds || 0;
+		var seconds = obj.seconds || 0;
+		var minutes = obj.minutes || 0;
+		var hours = obj.hours || 0;
+		var days = obj.days || 0;
+		var cleanAll = (obj.cleanAll === true) || false;
+		expirationService.setExpirationWindow(milliseconds,seconds,minutes,hours,days,cleanAll);
+	},
 	/*
 		if you pass a string, it will completely replace the browser url
 		if a JSON object is sent as a param with two properties it will work accordingly
@@ -444,7 +470,7 @@ var smartjax={
 			url = historyService.addQueryString(url,params);
 		historyService.replaceURL(url);
 	}
-}
+};
 
 
 //service related to storage
@@ -506,7 +532,9 @@ var	storeService={
 			smartjaxStore={};
 		if(!smartjaxStore.storeIds)
 			smartjaxStore.storeIds={};
-		smartjaxStore.storeIds[key]={};
+		smartjaxStore.storeIds[key]={
+			firstSavedOn: Date.now()
+		};
 		this.setFullStore(smartjaxStore,storeName);		
 	},
 	clearStoreId:function (storeId, storeName) {

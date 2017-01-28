@@ -17,6 +17,7 @@ var groupService={
 			selectedGroup={
 				group:requestObj.group,
 				storeIds:[],
+				firstSavedOn: Date.now()
 			};
 			smartjaxStore.groups[requestObj.group]=selectedGroup;
 		}

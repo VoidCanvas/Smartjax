@@ -7,10 +7,10 @@ $("#btn_c1").on('click',function () {
 	});
 	promise.then(function (apiResult) {
 		$("#callMsgBoard").html("Call completed!!");
-		$("#resultContainer").html(JSON.stringify(apiResult))
+		$("#resultContainer").html(JSON.stringify(apiResult));
 	},function(){
 		$("#callMsgBoard").html("Call failed!!");
-	})
+	});
 });
 
 $("#btn_c1_force").on('click',function () {
@@ -23,10 +23,10 @@ $("#btn_c1_force").on('click',function () {
 	});
 	promise.then(function (apiResult) {
 		$("#callMsgBoard").html("Call completed!!");
-		$("#resultContainer").html(JSON.stringify(apiResult))
+		$("#resultContainer").html(JSON.stringify(apiResult));
 	},function(){
 		$("#callMsgBoard").html("Call failed!!");
-	})
+	});
 });
 
 $("#btn_c2_g1").on('click',function () {
@@ -44,10 +44,10 @@ $("#btn_c2_g1").on('click',function () {
 	});
 	promise.then(function (apiResult) {
 		$("#callMsgBoard").html("Call completed!!");
-		$("#resultContainer").html(JSON.stringify(apiResult))
+		$("#resultContainer").html(JSON.stringify(apiResult));
 	},function(){
 		$("#callMsgBoard").html("Call failed!!");
-	})
+	});
 });
 $("#btn_c3_g1").on('click',function () {
 	$("#resultContainer").html('');
@@ -60,10 +60,10 @@ $("#btn_c3_g1").on('click',function () {
 	});
 	promise.then(function (apiResult) {
 		$("#callMsgBoard").html("Call completed!!");
-		$("#resultContainer").html(JSON.stringify(apiResult))
+		$("#resultContainer").html(JSON.stringify(apiResult));
 	},function(){
 		$("#callMsgBoard").html("Call failed!!");
-	})
+	});
 });
 
 $("#btn_c4_g2").on('click',function () {
@@ -76,10 +76,10 @@ $("#btn_c4_g2").on('click',function () {
 	});
 	promise.then(function (apiResult) {
 		$("#callMsgBoard").html("Call completed!!");
-		$("#resultContainer").html(JSON.stringify(apiResult))
+		$("#resultContainer").html(JSON.stringify(apiResult));
 	},function(){
 		$("#callMsgBoard").html("Call failed!!");
-	})
+	});
 });
 
 $("#btn_c5_g2").on('click',function () {
@@ -92,25 +92,33 @@ $("#btn_c5_g2").on('click',function () {
 	});
 	promise.then(function (apiResult) {
 		$("#callMsgBoard").html("Call completed!!");
-		$("#resultContainer").html(JSON.stringify(apiResult))
+		$("#resultContainer").html(JSON.stringify(apiResult));
 	},function(){
 		$("#callMsgBoard").html("Call failed!!");
-	})
+	});
 });
 
 $('#btn_clr_i1').on('click',function () {
-	Smartjax.cleanStore({ids:["i1"]})
+	Smartjax.cleanStore({ids:["i1"]});
 	$("#callMsgBoard").html("id:i1 saved calls removed");
 });
 $('#btn_clr_g1').on('click',function () {
-	Smartjax.cleanStore({groups:["g1"]})
+	Smartjax.cleanStore({groups:["g1"]});
 	$("#callMsgBoard").html("group:g1 saved calls removed");
 });
 $('#btn_clr_g2').on('click',function () {
-	Smartjax.cleanStore({groups:["g2"]})
+	Smartjax.cleanStore({groups:["g2"]});
 	$("#callMsgBoard").html("group:g2 saved calls removed");
 });
 $('#btn_clr_all').on('click',function () {
 	Smartjax.cleanAll();
 	$("#callMsgBoard").html("all saved calls removed");
+});
+
+//setExpirationWindow(minutes, hours, days)
+Smartjax.setExpirationWindow({
+	minutes: 1,
+	hours: 0,
+	days: 0,
+	cleanAll: true
 });

@@ -57,7 +57,9 @@ var	storeService={
 			smartjaxStore={};
 		if(!smartjaxStore.storeIds)
 			smartjaxStore.storeIds={};
-		smartjaxStore.storeIds[key]={};
+		smartjaxStore.storeIds[key]={
+			firstSavedOn: Date.now()
+		};
 		this.setFullStore(smartjaxStore,storeName);		
 	},
 	clearStoreId:function (storeId, storeName) {
