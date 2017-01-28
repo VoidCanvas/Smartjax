@@ -21,7 +21,7 @@ var groupService={
 			selectedGroup={
 				group:requestObj.group,
 				storeIds:[],
-			}
+			};
 			smartjaxStore.groups.push(selectedGroup);
 		}
 		if(selectedGroup.storeIds.indexOf(storeId)==-1)
@@ -35,14 +35,17 @@ var groupService={
 		if(!selectedGroup || !smartjaxStore)
 			return false;
 		else{
-			var mainStoreIds=smartjaxStore.storeIds;
+			//var mainStoreIds=smartjaxStore.storeIds;
 			var storeIds=selectedGroup.storeIds;
 			if(storeIds){
 				storeIds.forEach(function (storeId) {
-					mainStoreIds.splice(mainStoreIds.indexOf(storeId),1);
-					storeService.clearStoreId(storeId, storeName)
+					//mainStoreIds.splice(mainStoreIds.indexOf(storeId),1);
+					storeService.remove(storeId, storeName);
+					storeService.clearStoreId(storeId, storeName);
 				});					
 			}
+			smartjaxStore=storeService.getFullStore(storeName); //again fetching the latest data
+			selectedGroup = smartjaxStore && smartjaxStore.groups && smartjaxStore.groups.length && helper.findBy(smartjaxStore.groups,'group',groupName);
 			delete selectedGroup;
 			storeService.setFullStore(smartjaxStore,storeName);
 			console.log("group "+groupName+" cleared from Smartjax store");
@@ -488,7 +491,8 @@ var	storeService={
 		storeName = storeName || smartjax.defaults.store;
 
 		var storeIds = this.getFullStore(storeName) && this.getFullStore(storeName).storeIds;
-		if(storeIds && storeIds.length && storeIds.indexOf(storeId)!=-1)
+
+		if(storeIds && storeIds[storeId]!==undefined && storeIds[storeId]!==null)
 			return true;
 		else
 			return false;
@@ -499,9 +503,9 @@ var	storeService={
 		var smartjaxStore = this.getFullStore(storeName);
 		if(!smartjaxStore)
 			smartjaxStore={};
-		if(!smartjaxStore.storeIds || !smartjaxStore.storeIds.length)
-			smartjaxStore.storeIds=[];
-		smartjaxStore.storeIds.push(key);
+		if(!smartjaxStore.storeIds)
+			smartjaxStore.storeIds={};
+		smartjaxStore.storeIds[key]={};
 		this.setFullStore(smartjaxStore,storeName);		
 	},
 	clearStoreId:function (storeId, storeName) {
@@ -516,11 +520,7 @@ var	storeService={
 		var store = storeService.getFullStore(storeName);
 		if(store && store.storeIds){
 			ids.forEach(function (id) {
-				var index = store.storeIds.indexOf(id);
-				if(index!=-1){
-					store.storeIds.splice(index,1);
-					this.clearStoreId(id,storeName);
-				}
+				delete store.storeIds[id];
 			}.bind(this));
 			storeService.setFullStore(store,storeName);
 		}
