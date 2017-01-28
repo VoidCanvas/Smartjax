@@ -72,9 +72,12 @@ var	storeService={
 		if(typeof ids == "string")
 			ids=[ids];
 		var store = storeService.getFullStore(storeName);
-		if(store && store.storeIds){
+		if(store){
 			ids.forEach(function (id) {
-				delete store.storeIds[id];
+				if(store.storeIds){
+					delete store.storeIds[id];
+				}
+				this.clearStoreId(id, storeName);
 			}.bind(this));
 			storeService.setFullStore(store,storeName);
 		}

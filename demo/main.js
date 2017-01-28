@@ -117,8 +117,9 @@ $('#btn_clr_all').on('click',function () {
 
 //setExpirationWindow(minutes, hours, days)
 Smartjax.setExpirationWindow({
-	minutes: 1,
+	seconds: 15,
+	minutes: 0,
 	hours: 0,
 	days: 0,
-	cleanAll: true
+	cleanAll: false
 });
