@@ -10,15 +10,15 @@ var groupService={
 		var smartjaxStore = storeService.getFullStore(requestObj.store);
 		if(!smartjaxStore)
 			smartjaxStore={};
-		if(!smartjaxStore.groups || !smartjaxStore.groups.length)
-			smartjaxStore.groups=[];
-		var selectedGroup=smartjaxStore.groups && helper.findBy(smartjaxStore.groups,'group',requestObj.group);
+		if(!smartjaxStore.groups)
+			smartjaxStore.groups={};
+		var selectedGroup=smartjaxStore.groups[requestObj.group];
 		if(!selectedGroup){
 			selectedGroup={
 				group:requestObj.group,
 				storeIds:[],
 			};
-			smartjaxStore.groups.push(selectedGroup);
+			smartjaxStore.groups[requestObj.group]=selectedGroup;
 		}
 		if(selectedGroup.storeIds.indexOf(storeId)==-1)
 			selectedGroup.storeIds.push(storeId);
@@ -27,7 +27,7 @@ var groupService={
 	},
 	clearGroupData:function (groupName, storeName) {
 		var smartjaxStore=storeService.getFullStore(storeName);
-		var selectedGroup = smartjaxStore && smartjaxStore.groups && smartjaxStore.groups.length && helper.findBy(smartjaxStore.groups,'group',groupName);
+		var selectedGroup = smartjaxStore && smartjaxStore.groups && smartjaxStore.groups[groupName];
 		if(!selectedGroup || !smartjaxStore)
 			return false;
 		else{
@@ -41,8 +41,9 @@ var groupService={
 				});					
 			}
 			smartjaxStore=storeService.getFullStore(storeName); //again fetching the latest data
-			selectedGroup = smartjaxStore && smartjaxStore.groups && smartjaxStore.groups.length && helper.findBy(smartjaxStore.groups,'group',groupName);
-			delete selectedGroup;
+			if(smartjaxStore && smartjaxStore.groups && smartjaxStore.groups[groupName]){
+				delete smartjaxStore.groups[groupName];
+			}
 			storeService.setFullStore(smartjaxStore,storeName);
 			console.log("group "+groupName+" cleared from Smartjax store");
 		}
