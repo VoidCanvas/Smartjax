@@ -4,7 +4,7 @@ $("#btn_c1").on('click',function () {
 	var promise=Smartjax.ajax({
 		url:'http://httpbin.org/get',
 		type: 'GET',
-		noAutoClear: true
+		noAutoClean: true
 	});
 	promise.then(function (apiResult) {
 		$("#callMsgBoard").html("Call completed!!");

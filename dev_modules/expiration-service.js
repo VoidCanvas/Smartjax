@@ -46,7 +46,7 @@ var expirationService = {
 					for(var id in storeIds){
 						if(storeIds.hasOwnProperty(id)){
 							var storeIdDetails = storeIds[id];
-							if(storeIdDetails && storeIdDetails.noAutoClear===true && storeIdDetails.firstSavedOn && (currentDate - storeIdDetails.firstSavedOn) > this.expirationWindowInMilliseconds){
+							if(storeIdDetails && storeIdDetails.noAutoClean===true && storeIdDetails.firstSavedOn && (currentDate - storeIdDetails.firstSavedOn) > this.expirationWindowInMilliseconds){
 								storeIdsToBeDeleted.push(id);
 							}
 						}

@@ -96,7 +96,7 @@ var helper={
 					key:storeId,
 					value:apiResult,
 					storeName:params.requestObj.store,
-					noAutoClear: params.requestObj.noAutoClear
+					noAutoClean: params.requestObj.noAutoClean
 				});
 				groupService.registerGroup(params.requestObj,storeId);
 				newDeferred.resolve(apiResult);
