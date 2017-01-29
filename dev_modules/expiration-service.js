@@ -31,7 +31,6 @@ var expirationService = {
 		}
 	},
 	clearSelective: function(){
-		console.log("in clean selective");
 		var environmentsToClear = ["page", "tab", "forever"];
 		var currentDate = Date.now();
 		var storeIdsToBeDeleted = [];
