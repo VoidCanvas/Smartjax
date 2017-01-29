@@ -121,5 +121,6 @@ Smartjax.setExpirationWindow({
 	minutes: 0,
 	hours: 0,
 	days: 0,
-	cleanAll: false
+	cleanAll: false,
+	groupBasedClean: true
 });

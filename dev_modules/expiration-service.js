@@ -16,6 +16,10 @@ var expirationService = {
 		if(groupBasedClean===true){
 			this.groupBasedClean = true;
 		}
+		
+		//clear at the time of loading
+		this.clearSelective();
+
 		if(cleanAll===true){
 			this.timer = setInterval(function(){
 				Smartjax.cleanAll();
@@ -47,7 +51,6 @@ var expirationService = {
 							}
 						}
 					}
-					console.log("deleting ids ", storeIdsToBeDeleted);
 				}
 				if(this.groupBasedClean && groups){
 					for(var group in groups){
@@ -58,7 +61,6 @@ var expirationService = {
 							}
 						}
 					}
-					console.log("deleting groups ", groupsToBeDeleted);
 				}
 			}
 		}.bind(this));

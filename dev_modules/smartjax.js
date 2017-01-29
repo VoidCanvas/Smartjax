@@ -91,7 +91,7 @@ var smartjax={
 		var hours = obj.hours || 0;
 		var days = obj.days || 0;
 		var cleanAll = (obj.cleanAll === true) || false;
-		expirationService.setExpirationWindow(milliseconds,seconds,minutes,hours,days,cleanAll);
+		expirationService.setExpirationWindow(milliseconds,seconds,minutes,hours,days,cleanAll,obj.groupBasedClean,obj.idBasedClean);
 	},
 	/*
 		if you pass a string, it will completely replace the browser url
