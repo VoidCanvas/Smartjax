@@ -200,6 +200,7 @@ Smartjax.setExpirationWindow({
 You can provide the time parameters like seconds, minutes etc. If you don't provide one, that will be considered as zero. If you make `cleanAll: true`, it will clean all cached records once the oldest cache record is crossed the given time limit. You can set `groupBasedClean:true` if you want to clean all calls of a group once the oldest one of that group is crossed the time limit.
 
 **Exception calls**
+
 If your time based expiration is on, but you want certain calls to keep its cache alive, you can set `noAutoClean:true` to that perticular call. Below is an example.
 
 ```javascript
