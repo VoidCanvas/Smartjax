@@ -4,6 +4,7 @@ $("#btn_c1").on('click',function () {
 	var promise=Smartjax.ajax({
 		url:'http://httpbin.org/get',
 		type: 'GET',
+		noAutoClear: true
 	});
 	promise.then(function (apiResult) {
 		$("#callMsgBoard").html("Call completed!!");
@@ -115,7 +116,7 @@ $('#btn_clr_all').on('click',function () {
 	$("#callMsgBoard").html("all saved calls removed");
 });
 
-//setExpirationWindow(minutes, hours, days)
+
 Smartjax.setExpirationWindow({
 	seconds: 15,
 	minutes: 0,

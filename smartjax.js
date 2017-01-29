@@ -50,7 +50,7 @@ var expirationService = {
 					for(var id in storeIds){
 						if(storeIds.hasOwnProperty(id)){
 							var storeIdDetails = storeIds[id];
-							if(storeIdDetails && storeIdDetails.firstSavedOn && (currentDate - storeIdDetails.firstSavedOn) > this.expirationWindowInMilliseconds){
+							if(storeIdDetails && storeIdDetails.noAutoClear===true && storeIdDetails.firstSavedOn && (currentDate - storeIdDetails.firstSavedOn) > this.expirationWindowInMilliseconds){
 								storeIdsToBeDeleted.push(id);
 							}
 						}
@@ -236,13 +236,14 @@ var helper={
 				storeService.save({
 					key:storeId,
 					value:apiResult,
-					storeName:params.requestObj.store
+					storeName:params.requestObj.store,
+					noAutoClear: params.requestObj.noAutoClear
 				});
-				groupService.registerGroup(params.requestObj,storeId)
+				groupService.registerGroup(params.requestObj,storeId);
 				newDeferred.resolve(apiResult);
 			});
 			defaultPromise.fail(function (apiResult) {
-				newDeferred.reject(apiResult)
+				newDeferred.reject(apiResult);
 			});
 			promiseOfCall=promiseService.setAndRefinePromise(storeId,newDeferred.promise());
 		}
@@ -294,7 +295,7 @@ var helper={
 		if(storeIds && storeIds.length){
 			storeIds.forEach(function (storeId) {
 				storeService.clearStoreId(storeId,storeName);
-			})
+			});
 		}
 		storeService.setFullStore({},storeName);
 		console.log("All Smartjax store data cleared");
@@ -328,15 +329,15 @@ var historyService={
 		var splittedByHash = currentUrl.split('#');
 		var preHashUrl = {
 			url:splittedByHash[0]
-		}
+		};
 		var postHashUrl = {
 			url:splittedByHash[1]
-		}
+		};
 		
 		//if the query params is to be added before hash or after
 		var queryParamUrl = (postHashUrl.url && postHashUrl.url.indexOf('?')!=-1)?postHashUrl:preHashUrl;
 		if(queryParamUrl.url[queryParamUrl.url.length-1]==='/')
-			queryParamUrl.url=queryParamUrl.url.slice(queryParamUrl.url.length-1,queryParamUrl.url.length)
+			queryParamUrl.url=queryParamUrl.url.slice(queryParamUrl.url.length-1,queryParamUrl.url.length);
 
 		queryParams = $.extend({},historyService.existingQueryParams(queryParamUrl.url),queryParams);
 		queryParamUrl.url = queryParamUrl.url.split('?')[0];
@@ -349,7 +350,7 @@ var historyService={
 		  }
 		}
 
-		var modifiedUrl = preHashUrl.url 
+		var modifiedUrl = preHashUrl.url;
 		if(postHashUrl.url)
 			modifiedUrl+="#"+postHashUrl.url;	
 		return modifiedUrl;		

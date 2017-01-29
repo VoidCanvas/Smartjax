@@ -95,13 +95,14 @@ var helper={
 				storeService.save({
 					key:storeId,
 					value:apiResult,
-					storeName:params.requestObj.store
+					storeName:params.requestObj.store,
+					noAutoClear: params.requestObj.noAutoClear
 				});
-				groupService.registerGroup(params.requestObj,storeId)
+				groupService.registerGroup(params.requestObj,storeId);
 				newDeferred.resolve(apiResult);
 			});
 			defaultPromise.fail(function (apiResult) {
-				newDeferred.reject(apiResult)
+				newDeferred.reject(apiResult);
 			});
 			promiseOfCall=promiseService.setAndRefinePromise(storeId,newDeferred.promise());
 		}
@@ -153,7 +154,7 @@ var helper={
 		if(storeIds && storeIds.length){
 			storeIds.forEach(function (storeId) {
 				storeService.clearStoreId(storeId,storeName);
-			})
+			});
 		}
 		storeService.setFullStore({},storeName);
 		console.log("All Smartjax store data cleared");
