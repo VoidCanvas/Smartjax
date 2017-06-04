@@ -43,7 +43,8 @@ var	storeService={
 		storeName = storeName || smartjax.defaults.store;
 
 		var storeIds = this.getFullStore(storeName) && this.getFullStore(storeName).storeIds;
-		if(storeIds && storeIds.length && storeIds.indexOf(storeId)!=-1)
+
+		if(storeIds && storeIds[storeId]!==undefined && storeIds[storeId]!==null)
 			return true;
 		else
 			return false;
@@ -54,9 +55,11 @@ var	storeService={
 		var smartjaxStore = this.getFullStore(storeName);
 		if(!smartjaxStore)
 			smartjaxStore={};
-		if(!smartjaxStore.storeIds || !smartjaxStore.storeIds.length)
-			smartjaxStore.storeIds=[];
-		smartjaxStore.storeIds.push(key);
+		if(!smartjaxStore.storeIds)
+			smartjaxStore.storeIds={};
+		smartjaxStore.storeIds[key]={
+			firstSavedOn: Date.now()
+		};
 		this.setFullStore(smartjaxStore,storeName);		
 	},
 	clearStoreId:function (storeId, storeName) {
@@ -69,13 +72,12 @@ var	storeService={
 		if(typeof ids == "string")
 			ids=[ids];
 		var store = storeService.getFullStore(storeName);
-		if(store && store.storeIds){
+		if(store){
 			ids.forEach(function (id) {
-				var index = store.storeIds.indexOf(id);
-				if(index!=-1){
-					store.storeIds.splice(index,1);
-					this.clearStoreId(id,storeName);
+				if(store.storeIds){
+					delete store.storeIds[id];
 				}
+				this.clearStoreId(id, storeName);
 			}.bind(this));
 			storeService.setFullStore(store,storeName);
 		}

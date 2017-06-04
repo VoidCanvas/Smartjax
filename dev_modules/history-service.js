@@ -24,15 +24,15 @@ var historyService={
 		var splittedByHash = currentUrl.split('#');
 		var preHashUrl = {
 			url:splittedByHash[0]
-		}
+		};
 		var postHashUrl = {
 			url:splittedByHash[1]
-		}
+		};
 		
 		//if the query params is to be added before hash or after
 		var queryParamUrl = (postHashUrl.url && postHashUrl.url.indexOf('?')!=-1)?postHashUrl:preHashUrl;
 		if(queryParamUrl.url[queryParamUrl.url.length-1]==='/')
-			queryParamUrl.url=queryParamUrl.url.slice(queryParamUrl.url.length-1,queryParamUrl.url.length)
+			queryParamUrl.url=queryParamUrl.url.slice(queryParamUrl.url.length-1,queryParamUrl.url.length);
 
 		queryParams = $.extend({},historyService.existingQueryParams(queryParamUrl.url),queryParams);
 		queryParamUrl.url = queryParamUrl.url.split('?')[0];
@@ -45,7 +45,7 @@ var historyService={
 		  }
 		}
 
-		var modifiedUrl = preHashUrl.url 
+		var modifiedUrl = preHashUrl.url;
 		if(postHashUrl.url)
 			modifiedUrl+="#"+postHashUrl.url;	
 		return modifiedUrl;		

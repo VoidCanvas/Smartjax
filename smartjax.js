@@ -2,61 +2,139 @@ var Smartjax = function() {
 
 
 
+var expirationService = {
+	timer: null,
+	expirationWindowInMilliseconds: null,
+	groupBasedClean: false,
+	idBasedClean: true,
+	setExpirationWindow: function (milliseconds,seconds,minutes,hours,days,cleanAll,groupBasedClean,idBasedClean) {
+		//let's clear it if you already have an expiration timer
+		if(this.timer!==null){
+			clearInterval(this.timer);
+		}
+		var expirationWindowInMilliseconds = milliseconds + (seconds + (minutes + (hours + (days * 24))*60)*60) * 1000;
+		this.expirationWindowInMilliseconds = expirationWindowInMilliseconds;
+		if(idBasedClean===false){
+			this.idBasedClean = false;
+		}
+		if(groupBasedClean===true){
+			this.groupBasedClean = true;
+		}
+		
+		//clear at the time of loading
+		this.clearSelective();
+
+		if(cleanAll===true){
+			this.timer = setInterval(function(){
+				Smartjax.cleanAll();
+			}.bind(this), expirationWindowInMilliseconds);
+		} else {
+			this.timer = setInterval(function(){
+				this.clearSelective();
+			}.bind(this), expirationWindowInMilliseconds);
+		}
+	},
+	clearSelective: function(){
+		var environmentsToClear = ["page", "tab", "forever"];
+		var currentDate = Date.now();
+		var storeIdsToBeDeleted = [];
+		var groupsToBeDeleted = [];
+		
+		environmentsToClear.forEach(function (ele) {
+			var smartjaxStore = storeService.getFullStore(ele);
+			if(smartjaxStore){
+				var storeIds=smartjaxStore.storeIds;
+				var groups=smartjaxStore.groups;
+				if(this.idBasedClean && storeIds){
+					for(var id in storeIds){
+						if(storeIds.hasOwnProperty(id)){
+							var storeIdDetails = storeIds[id];
+							if(storeIdDetails && storeIdDetails.noAutoClean===true && storeIdDetails.firstSavedOn && (currentDate - storeIdDetails.firstSavedOn) > this.expirationWindowInMilliseconds){
+								storeIdsToBeDeleted.push(id);
+							}
+						}
+					}
+				}
+				if(this.groupBasedClean && groups){
+					for(var group in groups){
+						if(groups.hasOwnProperty(group)){
+							var groupDetails = groups[group];
+							if(groupDetails && groupDetails.firstSavedOn && (currentDate - groupDetails.firstSavedOn) > this.expirationWindowInMilliseconds){
+								groupsToBeDeleted.push(group);
+							}
+						}
+					}
+				}
+			}
+		}.bind(this));
+		smartjax.cleanStore({
+			ids: storeIdsToBeDeleted,
+			groups: groupsToBeDeleted
+		});
+	}
+};
+
+
 //group service to handle grouping
-var groupService={
+var groupService={		
 	registerGroup:function (requestObj,storeId) {
 		var group = requestObj.group;
 		if(!group)
 			return null;
 		if(!storeId)
 			storeId=helper.buildRequestStoreId(requestObj);
-
+		
 		var smartjaxStore = storeService.getFullStore(requestObj.store);
 		if(!smartjaxStore)
 			smartjaxStore={};
-		if(!smartjaxStore.groups || !smartjaxStore.groups.length)
-			smartjaxStore.groups=[];
-		var selectedGroup=smartjaxStore.groups && helper.findBy(smartjaxStore.groups,'group',requestObj.group);
+		if(!smartjaxStore.groups)
+			smartjaxStore.groups={};
+		var selectedGroup=smartjaxStore.groups[requestObj.group];
 		if(!selectedGroup){
 			selectedGroup={
 				group:requestObj.group,
 				storeIds:[],
+				firstSavedOn: Date.now()
 			};
-			smartjaxStore.groups.push(selectedGroup);
+			smartjaxStore.groups[requestObj.group]=selectedGroup;
 		}
 		if(selectedGroup.storeIds.indexOf(storeId)==-1)
 			selectedGroup.storeIds.push(storeId);
-		storeService.setFullStore(smartjaxStore,requestObj.store);
+		storeService.setFullStore(smartjaxStore,requestObj.store);	
 		return true;
 	},
 	clearGroupData:function (groupName, storeName) {
 		var smartjaxStore=storeService.getFullStore(storeName);
-		var selectedGroup = smartjaxStore && smartjaxStore.groups && smartjaxStore.groups.length && helper.findBy(smartjaxStore.groups,'group',groupName);
+		var selectedGroup = smartjaxStore && smartjaxStore.groups && smartjaxStore.groups[groupName];
 		if(!selectedGroup || !smartjaxStore)
 			return false;
 		else{
-			var mainStoreIds=smartjaxStore.storeIds;
+			//var mainStoreIds=smartjaxStore.storeIds;
 			var storeIds=selectedGroup.storeIds;
 			if(storeIds){
 				storeIds.forEach(function (storeId) {
-					mainStoreIds.splice(mainStoreIds.indexOf(storeId),1);
+					//mainStoreIds.splice(mainStoreIds.indexOf(storeId),1);
+					storeService.remove(storeId, storeName);
 					storeService.clearStoreId(storeId, storeName);
-				});
+				});					
 			}
-			delete selectedGroup;
+			smartjaxStore=storeService.getFullStore(storeName); //again fetching the latest data
+			if(smartjaxStore && smartjaxStore.groups && smartjaxStore.groups[groupName]){
+				delete smartjaxStore.groups[groupName];
+			}
 			storeService.setFullStore(smartjaxStore,storeName);
 			console.log("group "+groupName+" cleared from Smartjax store");
 		}
 	},
-
+	
 	clearGroups:function (groups, storeName) {
 		if(groups && groups.length){
-			groups.forEach($.proxy(function (value) {
+			groups.forEach($.proxy(function (value,index) {
 				this.clearGroupData(value,storeName);
 			},this));
 		}
 	},
-
+	
 };
 
 
@@ -105,7 +183,7 @@ var helper={
 		}
 	},
 
-	/*
+	/* 
 		Where to store?
 		In page as an JS object, or in tab as sessionStorage, or forever as localStorage
 	*/
@@ -146,7 +224,7 @@ var helper={
 
 		//geting the actual requiest object by deleting the smartjax specific variables
 		var requiredRequestObj = this.getOriginalRequestObject(params.requestObj);
-
+		
 		//check if call is already in progress
 		var storeId=params.storeId;
 		var promiseOfCall = promiseService.getPromiseFor(storeId);
@@ -157,7 +235,8 @@ var helper={
 				storeService.save({
 					key:storeId,
 					value:apiResult,
-					storeName:params.requestObj.store
+					storeName:params.requestObj.store,
+					noAutoClean: params.requestObj.noAutoClean
 				});
 				groupService.registerGroup(params.requestObj,storeId);
 				newDeferred.resolve(apiResult);
@@ -199,8 +278,8 @@ var helper={
 	findBy:function (array,key,value) {
 		if(!array || !array.length || !key || !value)
 			return null;
-		var allMatched = $.grep(array, function(e){
-			return e[key] == value;
+		var allMatched = $.grep(array, function(e){ 
+			return e[key] == value; 
 		});
 		if(allMatched && allMatched.length && allMatched[0])
 			return allMatched[0];
@@ -253,27 +332,27 @@ var historyService={
 		var postHashUrl = {
 			url:splittedByHash[1]
 		};
-
+		
 		//if the query params is to be added before hash or after
 		var queryParamUrl = (postHashUrl.url && postHashUrl.url.indexOf('?')!=-1)?postHashUrl:preHashUrl;
-		if(queryParamUrl.url[queryParamUrl.url.length-1]==='/'){
+		if(queryParamUrl.url[queryParamUrl.url.length-1]==='/')
 			queryParamUrl.url=queryParamUrl.url.slice(queryParamUrl.url.length-1,queryParamUrl.url.length);
-		}
+
 		queryParams = $.extend({},historyService.existingQueryParams(queryParamUrl.url),queryParams);
 		queryParamUrl.url = queryParamUrl.url.split('?')[0];
 		//appending query params
 		for (var key in queryParams) {
-			if (queryParams.hasOwnProperty(key)) {
-				var value = queryParams[key];
-				queryParamUrl.url+=(queryParamUrl.url.indexOf('?')===-1)?'?':'&';
-				queryParamUrl.url+=key+"="+value;
-			}
+		  if (queryParams.hasOwnProperty(key)) {
+		  	var value = queryParams[key];
+		  	queryParamUrl.url+=(queryParamUrl.url.indexOf('?')===-1)?'?':'&';
+		  	queryParamUrl.url+=key+"="+value;
+		  }
 		}
 
 		var modifiedUrl = preHashUrl.url;
 		if(postHashUrl.url)
-			modifiedUrl+="#"+postHashUrl.url;
-		return modifiedUrl;
+			modifiedUrl+="#"+postHashUrl.url;	
+		return modifiedUrl;		
 	},
 	existingQueryParams:function (url) {
 		var existingQueryParams ={};
@@ -335,7 +414,7 @@ var promiseService ={
 
 // the actual Smartjax to be returned
 var smartjax={
-
+	
 	/*
 		These are the default values smartjax uses in operations
 	*/
@@ -344,7 +423,7 @@ var smartjax={
 		alwaysForce: false,
 		alwaysStore: true,
 		defaultStorageName: 'SmartjaxStore',
-		store:'tab' // values can be 'page', 'tab' and 'forever'
+		store:'tab' // values can be 'page', 'tab' and 'forever' 
 	},
 
 	/*
@@ -366,10 +445,10 @@ var smartjax={
 			if(helper.shouldStore(requestObj))
 				return helper.returnWithAddedStore({
 					storeId:requestStoreId,
-					requestObj:requestObj
+					requestObj:requestObj	
 				});
 			else
-				return $.ajax(helper.getOriginalRequestObject(requestObj));
+				return $.ajax(helper.getOriginalRequestObject(requestObj));	
 		}
 	},
 	//clears everything smartjax cached
@@ -419,7 +498,15 @@ var smartjax={
 		}
 	},
 
-
+	setExpirationWindow: function(obj){
+		var milliseconds = obj.milliseconds || 0;
+		var seconds = obj.seconds || 0;
+		var minutes = obj.minutes || 0;
+		var hours = obj.hours || 0;
+		var days = obj.days || 0;
+		var cleanAll = (obj.cleanAll === true) || false;
+		expirationService.setExpirationWindow(milliseconds,seconds,minutes,hours,days,cleanAll,obj.groupBasedClean,obj.idBasedClean);
+	},
 	/*
 		if you pass a string, it will completely replace the browser url
 		if a JSON object is sent as a param with two properties it will work accordingly
@@ -473,7 +560,7 @@ var	storeService={
 		if(storeName!="page")
 			objectToSave = JSON.stringify(objectToSave);
 		store.setItem(reqResToSave.key, objectToSave);
-
+		
 	},
 	fetch:function (reqResToFetch) {
 		var store = helper.getStorageObj(reqResToFetch.storeName);
@@ -488,25 +575,28 @@ var	storeService={
 		storeName = storeName || smartjax.defaults.store;
 
 		var storeIds = this.getFullStore(storeName) && this.getFullStore(storeName).storeIds;
-		if(storeIds && storeIds.length && storeIds.indexOf(storeId)!=-1)
+
+		if(storeIds && storeIds[storeId]!==undefined && storeIds[storeId]!==null)
 			return true;
 		else
 			return false;
 	},
-	registerNewKey:function (key, storeName) {
+	registerNewKey:function (key, storeName, options) {
 		storeName = storeName || smartjax.defaults.store;
 
 		var smartjaxStore = this.getFullStore(storeName);
 		if(!smartjaxStore)
 			smartjaxStore={};
-		if(!smartjaxStore.storeIds || !smartjaxStore.storeIds.length)
-			smartjaxStore.storeIds=[];
-		smartjaxStore.storeIds.push(key);
-		this.setFullStore(smartjaxStore,storeName);
+		if(!smartjaxStore.storeIds)
+			smartjaxStore.storeIds={};
+		smartjaxStore.storeIds[key]={
+			firstSavedOn: Date.now()
+		};
+		this.setFullStore(smartjaxStore,storeName);		
 	},
 	clearStoreId:function (storeId, storeName) {
 		storeName = storeName || smartjax.defaults.store;
-
+		
 		var store = helper.getStorageObj(storeName);
 		store.removeItem(storeId);
 	},
@@ -514,13 +604,12 @@ var	storeService={
 		if(typeof ids == "string")
 			ids=[ids];
 		var store = storeService.getFullStore(storeName);
-		if(store && store.storeIds){
+		if(store){
 			ids.forEach(function (id) {
-				var index = store.storeIds.indexOf(id);
-				if(index!=-1){
-					store.storeIds.splice(index,1);
-					this.clearStoreId(id,storeName);
+				if(store.storeIds){
+					delete store.storeIds[id];
 				}
+				this.clearStoreId(id, storeName);
 			}.bind(this));
 			storeService.setFullStore(store,storeName);
 		}
@@ -530,6 +619,10 @@ var	storeService={
 
 return smartjax;
 }();
-
-module = module || {};
-module.exports = Smartjax;
+if(typeof module!=="undefined"){
+	module.exports = Smartjax;
+} else {
+	if(typeof window!=="undefined"){
+		window.Smartjax = Smartjax;
+	}
+}

@@ -39,7 +39,7 @@ var smartjax={
 	},
 	//clears everything smartjax cached
 	cleanAll:function (storeName) {
-		this.cleanStore({clearAll:true}, storeName)
+		this.cleanStore({clearAll:true}, storeName);
 	},
 	//cleans specific items (specific ids and groups)
 	cleanStore:function (params, storeName) {
@@ -84,7 +84,15 @@ var smartjax={
 		}
 	},
 
-
+	setExpirationWindow: function(obj){
+		var milliseconds = obj.milliseconds || 0;
+		var seconds = obj.seconds || 0;
+		var minutes = obj.minutes || 0;
+		var hours = obj.hours || 0;
+		var days = obj.days || 0;
+		var cleanAll = (obj.cleanAll === true) || false;
+		expirationService.setExpirationWindow(milliseconds,seconds,minutes,hours,days,cleanAll,obj.groupBasedClean,obj.idBasedClean);
+	},
 	/*
 		if you pass a string, it will completely replace the browser url
 		if a JSON object is sent as a param with two properties it will work accordingly
@@ -105,4 +113,4 @@ var smartjax={
 			url = historyService.addQueryString(url,params);
 		historyService.replaceURL(url);
 	}
-}
+};
