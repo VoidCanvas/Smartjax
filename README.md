@@ -214,7 +214,7 @@ Smartjax.ajax({
 
 #URL manipulation
 
-Smartjax has in-built support for url manipulations. You can change your browser URL without reloading the entire page, using the following:
+Smartjax has in-built support for URL manipulations. You can change your browser URL without reloading the entire page, using the following:
 
 **changeUrl()**
 
@@ -228,5 +228,5 @@ Smartjax.changeUrl({
 });
 ```
 
-The property 'url' is optional. If you don't provide, it will execute with current url. The second property 'params' is to take a JSON object with query string params and values. If any param is already present in the url it will be replace previous value with the new one.
+The property 'url' is optional. If you don't provide, it will execute with current URL. The second property 'params' is to take a JSON object with query string params and values. If any param is already present in the url it will replace previous value with the new one.
 
