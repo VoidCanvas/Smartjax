@@ -4,11 +4,11 @@
 [Working demo](http://www.voidcanvas.com/demo/1339smartjax-demo/)
 
 ## Description
-Smartjax stores your api responses and do not ping the server for the same ajax call for the second time (options are available for force call too).
+Smartjax stores your API responses and does not ping the server for the same ajax call for the second time (options are available for force call too).
 
 **Example**
 
-You display your logged in user's summery in the right top cornor of your site. But to display that in every page you either need to make an ajax call, or have to make a server side processing. But using smartjax, you will get rid of all those processing.
+You display your logged in user's summary in the top-right corner of your site. But to display that in every page you either need to make an ajax call, or have to make a server side processing. But using smartjax, you will get rid of all those processing.
 
 Display it by making an ajax call using Smartjax. It will make the first call to get the user info and will store it internally. You can store the information for page level, tab's lifetime level or for forever. You can clear the entire store or the response for a particular one anytime you want.
 
@@ -52,7 +52,7 @@ Smartjax caches the result in the client side, and response with the same if you
 
 ## Different level of caching
 
-Using the property *store* you can decide should the response be stored till the page refresh, or till the tab closes or forever.
+Using the property *store* you can decide whether the response should be stored till the page gets refreshed, or until the tab is closed or should be stored forever.
 
 **Page level**
 
@@ -67,7 +67,7 @@ Smartjax.ajax({
 });
 ```
 
-This will clear the response once you reload the page or nvigate to another page.
+This will clear the response once you reload the page or navigate to another page.
 
 **Tab level**
 
@@ -82,7 +82,7 @@ Smartjax.ajax({
 });
 ```
 
-This will keep the response till the user closes the tab. Even if he refreshes the page or navigate to another, the response will still be with smartjax and will be retured from client side cache of called again. This is also the default store of smartjax.
+This will keep the response till the user closes the tab. Even if the page is refresehed or user navigates to another page, the response will be cached in smartjax and will be returned from client side cache, if same call is made again. This is default store type in smartjax.
 
 **Forever**
 
@@ -97,7 +97,7 @@ Smartjax.ajax({
 });
 ```
 
-You don't wanna remove the response of a particular call? Use *forever* as the value of *store*. However smartjax provide you methods to clean your entire store or a particular call response. So you can clear things explicitly, any time you want.
+If you don't want too remove the response of a particular call, use *forever* as the value of *store*. However, smartjax provide you methods to clean your entire store or a particular call response. So you can clear them explicitly, any time you want.
 
 **do not store**
 
@@ -121,7 +121,7 @@ With some extra parameter in the Smartjax.ajax() call you can control the behavi
 
 **force**
 
-If *force* property is true in a call, no matter even if the response is saved, but smartjax will make and fresh call and shore the new result.
+If *force* property is true in a call, no matter even if the response is saved, but smartjax will make and fresh call and store the new result.
 
 ```javascript
 Smartjax.ajax({
@@ -133,11 +133,11 @@ Smartjax.ajax({
 	force:true
 });
 ```
-Default the value is false.
+Default value for *force* option is false.
 
 **id**
 
-You can provide individual *id* to each call. So that you can individually identify a call. You can clear the saved response of an id.
+You can provide separate *id* to each call. So that you can individually identify a call. You can clear the saved response of the call by using the specified *id*.
 
 ```javascript
 Smartjax.ajax({
@@ -176,16 +176,16 @@ Smartjax.cleanStore({groups:["g1"], ids:["i1"]});
 
 **cleanAll()**
 
-This function is parameterless and cleans all the saved records.
+This function is parameter-less and cleans all the saved records.
 
 ```javascript
 Smartjax.cleanAll();
 ```
 
-The function takes an object as a parameter. where you can mention the properties given above. By default the default call method is 'get', but you can change it for all calls. Same in case of force and store.
+The function takes an object as a parameter. where you can mention the properties given above. By default, the default call method is 'get' (GET verb), but you can change it for all calls. Same in case of *force* and *store* options.
 
 ## Time based auto expiration
-If you want the cached api calls to be cleared after a certain period of time; you can run `.setExpirationWindow()` with parameters. See example in `demo/main.js`. The expiration is a periodic task which runs in every your given timeframe.
+If you want the cached API calls to be cleared after a certain period of time; you can run `.setExpirationWindow()` with parameters. See example in `demo/main.js`. The expiration is a periodic task which runs in every your given timeframe.
 
 ```javascript
 Smartjax.setExpirationWindow({
@@ -197,11 +197,11 @@ Smartjax.setExpirationWindow({
 	groupBasedClean: false //default is false
 });
 ```
-You can provide the time parameters like seconds, minutes etc. If you don't provide one, that will be considered as zero. If you make `cleanAll: true`, it will clean all cached records once the oldest cache record is crossed the given time limit. You can set `groupBasedClean:true` if you want to clean all calls of a group once the oldest one of that group is crossed the time limit.
+You can provide the time parameters in seconds, minutes etc. If you don't provide one, that will be considered as 0 (zero). If  `cleanAll: true` option is used, it will clean all cached records, once the oldest cache record is crossed the given time limit. You can set `groupBasedClean:true` if you want to clean all calls of a group once the oldest one of that group is crossed the time limit.
 
 **Exception calls**
 
-If your time based expiration is on, but you want certain calls to keep its cache alive, you can set `noAutoClean:true` to that perticular call. Below is an example.
+If your time based expiration is on, but you want certain calls to keep its cache alive, you can set `noAutoClean:true` to that particular call. Below is an example.
 
 ```javascript
 Smartjax.ajax({
@@ -212,9 +212,9 @@ Smartjax.ajax({
 ```
 
 
-#Url manipulation
+#URL manipulation
 
-Smartjax has started supporting url manipulations. Now you can change your browser url without reloading the page using the folowing.
+Smartjax has in-built support for URL manipulations. You can change your browser URL without reloading the entire page, using the following:
 
 **changeUrl()**
 
@@ -228,5 +228,5 @@ Smartjax.changeUrl({
 });
 ```
 
-The property 'url' is optional. If you don't provide, it will execute with current url. The second property 'params' is to take a JSON object with query string params and values. If any param is already present in the url it will replace the previous value with the new one you provide.
+The property 'url' is optional. If you don't provide, it will execute with current URL. The second property 'params' is to take a JSON object with query string params and values. If any param is already present in the url it will replace previous value with the new one.
 
